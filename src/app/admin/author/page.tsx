@@ -1,12 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
-export interface IAuthorProps {
-}
+export interface IAuthorProps {}
 
-export default function Author (props: IAuthorProps) {
-  return (
-    <div>
-      hello author
-    </div>
-  );
+export default function Author(props: IAuthorProps) {
+  return <div>hello author</div>
 }

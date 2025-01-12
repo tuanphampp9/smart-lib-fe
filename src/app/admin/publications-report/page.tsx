@@ -1,12 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
-export interface IPublicationReportProps {
-}
+export interface IPublicationReportProps {}
 
-export default function PublicationReport (props: IPublicationReportProps) {
-  return (
-    <div>
-      hello publication report
-    </div>
-  );
+export default function PublicationReport(props: IPublicationReportProps) {
+  return <div>hello publication report</div>
 }
