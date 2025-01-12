@@ -1,12 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
-export interface IBorrowReturnProps {
-}
+export interface IBorrowReturnProps {}
 
-export default function BorrowReturn (props: IBorrowReturnProps) {
-  return (
-    <div>
-      hello borrow-return
-    </div>
-  );
+export default function BorrowReturn(props: IBorrowReturnProps) {
+  return <div>hello borrow-return</div>
 }

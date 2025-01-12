@@ -1,12 +1,7 @@
-import * as React from 'react';
+import * as React from 'react'
 
-export interface ISpecialRegisterProps {
-}
+export interface ISpecialRegisterProps {}
 
-export default function SpecialRegister (props: ISpecialRegisterProps) {
-  return (
-    <div>
-      hello special-register
-    </div>
-  );
+export default function SpecialRegister(props: ISpecialRegisterProps) {
+  return <div>hello special-register</div>
 }
