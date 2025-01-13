@@ -36,20 +36,21 @@ const menus = [
   },
 ]
 export default function SideBarMyAccount(props: ISideBarMyAccountProps) {
-  const user = useSelector((state: RootState) => state.user)
+  const { user } = useSelector((state: RootState) => state.user)
   const pathName = usePathname()
   return (
     <Box className='rounded-md shadow-md py-3'>
       <div className='flex items-end gap-1 pl-3'>
         <Typography variant='inherit'>Xin chào</Typography>
         <Typography className='!text-red-800 !font-semibold' variant='inherit'>
-          {user.username}
+          {user.fullName}
         </Typography>
       </div>
       <div className='mt-4'>
         {menus.map((menu) => (
           <Link
             href={menu.href}
+            key={menu.id}
             className={`font-semibold p-3 w-full block border-t-2 border-t-gray-200
               hover:border-l-4 border-l-red-700
               ${pathName === menu.href ? 'border-l-4 border-l-red-700' : ''}

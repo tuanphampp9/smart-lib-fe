@@ -36,7 +36,6 @@ export default function Login(props: ILoginProps) {
       try {
         const res = await login(values.username, values.password)
         const lastPage = params.get('redirect')
-        console.log(res)
         if (res.status === 200) {
           localStorage.setItem('token', res.data.data.access_token)
           //set token into next server
@@ -49,14 +48,7 @@ export default function Login(props: ILoginProps) {
           }
           dispatch(
             setInfoUser({
-              email: res.data.data.user.email,
-              id: res.data.data.user.id,
-              name: res.data.data.user.name,
-              role: {
-                active: res.data.data.user.role.active,
-                name: res.data.data.user.role.name,
-                permissions: res.data.data.user.role.permissions,
-              },
+              user: res.data.data.user,
             })
           )
         }

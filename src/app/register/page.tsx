@@ -44,7 +44,7 @@ export default function Register(props: IRegisterProps) {
       phone: '',
       identityCardNumber: '',
       address: '',
-      gender: '',
+      gender: 'MALE',
     },
     validationSchema: Yup.object().shape({
       fullName: Yup.string().required('Họ và tên không được để trống'),
@@ -203,6 +203,7 @@ export default function Register(props: IRegisterProps) {
                 defaultValue='MALE'
                 name='radio-buttons-group'
                 row
+                value={formik.values.gender}
                 onChange={(e) => {
                   formik.setFieldValue('gender', e.target.value)
                 }}

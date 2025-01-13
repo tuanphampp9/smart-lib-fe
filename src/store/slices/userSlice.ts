@@ -1,25 +1,12 @@
+import { UserType } from '@/lib/types/userType'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface userState {
-  email: string
-  id: string
-  name: string
-  role: {
-    active: boolean
-    name: string
-    permissions: any[]
-  }
+  user: UserType
 }
 
 const initialState: userState = {
-  email: '',
-  id: '',
-  name: '',
-  role: {
-    active: false,
-    name: '',
-    permissions: [],
-  },
+  user: {} as UserType,
 }
 
 const userSlice = createSlice({
@@ -27,10 +14,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setInfoUser: (state, action: PayloadAction<userState>) => {
-      state.email = action.payload.email
-      state.id = action.payload.id
-      state.name = action.payload.name
-      state.role = action.payload.role
+      state.user = action.payload.user
     },
   },
 })

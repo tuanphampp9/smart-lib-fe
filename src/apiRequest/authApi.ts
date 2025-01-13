@@ -1,3 +1,4 @@
+import instant from '@/lib/axiosCustom'
 import { UserType } from '@/lib/types/userType'
 import axios from 'axios'
 const API_DOMAIN = process.env.NEXT_PUBLIC_API_URL
@@ -18,5 +19,15 @@ export const setTokenNextServer = async (token: string) => {
   const response = await axios.post(`/apis/authLogin`, {
     token,
   })
+  return response
+}
+
+export const getMe = async () => {
+  const response = await instant.get(`${API_DOMAIN}/v1/auth/account`)
+  return response
+}
+
+export const logout = async () => {
+  const response = await axios.post(`/apis/logout`)
   return response
 }

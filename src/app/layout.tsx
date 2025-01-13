@@ -5,7 +5,8 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import './globals.css'
 import { AntdRegistry } from '@ant-design/nextjs-registry'
-export default function Layout({
+import Account from './(client)/_components/Account'
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode
@@ -15,6 +16,7 @@ export default function Layout({
       <body>
         <StoreProvider>
           <ThemeRegistry>
+            <Account />
             <AntdRegistry>{children}</AntdRegistry>
           </ThemeRegistry>
         </StoreProvider>

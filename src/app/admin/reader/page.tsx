@@ -16,9 +16,11 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { createCard } from '@/apiRequest/cardApi'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
 export interface IReaderProps {}
 
 export default function Reader(props: IReaderProps) {
+  const router = useRouter()
   const [identityCard, setIdentityCard] = React.useState<string>('')
   const [listReaders, setListReaders] = React.useState<UserType[]>([])
   const [loading, setLoading] = React.useState<boolean>(false)
@@ -151,7 +153,11 @@ export default function Reader(props: IReaderProps) {
       headerAlign: 'left',
       renderCell: (params) => {
         return (
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              router.push(`/admin/reader/detail?readerId=${params.row.id}`)
+            }}
+          >
             <EditIcon />
           </IconButton>
         )
@@ -213,7 +219,13 @@ export default function Reader(props: IReaderProps) {
             },
           }}
         />
-        <Button startIcon={<AddIcon />} variant='contained'>
+        <Button
+          startIcon={<AddIcon />}
+          variant='contained'
+          onClick={() => {
+            router.push('/admin/reader/detail')
+          }}
+        >
           Thêm bạn đọc
         </Button>
       </div>
