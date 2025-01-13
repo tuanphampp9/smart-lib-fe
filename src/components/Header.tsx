@@ -1,26 +1,37 @@
 'use client'
+import { logout } from '@/apiRequest/authApi'
 import MenuHeader from '@/app/(client)/_components/MenuHeader'
 import { RootState } from '@/store/store'
 import { Box, Typography } from '@mui/material'
 import Link from 'next/link'
 import * as React from 'react'
 import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
 export interface IHeaderProps {}
 
 export default function Header(props: IHeaderProps) {
-  const user = useSelector((state: RootState) => state.user)
+  const { user } = useSelector((state: RootState) => state.user)
+  const handleLogout = async () => {
+    localStorage.removeItem('token')
+    await logout()
+    toast.success('Đăng xuất thành công')
+  }
   return (
     <div>
       <div className='flex justify-center bg-[#E7E9EF] py-2'>
         <div className='container flex justify-between'>
-          {user.name ? (
+          {user.fullName ? (
             <div className='flex gap-1 items-center'>
               <span className='text-black'>Xin chào</span>
-              <span className='text-blue-600'>{user.name}, </span>
-              <a href='/login' className='text-blue-600'>
+              <span className='text-blue-600'>{user.fullName}, </span>
+              <Link
+                href='/login'
+                className='text-blue-600'
+                onClick={handleLogout}
+              >
                 Đăng xuất
-              </a>
+              </Link>
             </div>
           ) : (
             <div className='flex gap-1 items-center text-black'>
