@@ -17,7 +17,7 @@ export default function MyAccount(props: IMyAccountProps) {
         <Typography className='!font-semibold !text-base'>
           Ảnh chân dung (ảnh thẻ):{' '}
         </Typography>
-        <img className='w-72 h-48' src={user.portraitImg} />
+        <img className='w-72' src={user.portraitImg} />
       </Box>
       <Box className='flex gap-x-28 mt-4'>
         <Box className='left'>

@@ -120,6 +120,7 @@ export default function TableCustom(props: ITableCustomProps) {
         isRowSelectable={isRowSelectable}
         onRowSelectionModelChange={onRowSelectionModelChange}
         getCellClassName={getCellClassName}
+        getRowHeight={() => 'auto'}
         slots={{
           noRowsOverlay: () => (
             <Box className='flex items-center justify-center h-full'>

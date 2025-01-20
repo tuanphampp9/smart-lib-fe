@@ -8,8 +8,8 @@ import { pageInfo } from '@/lib/types/commonType'
 
 export interface IPaginationCustomProps {
   pageInfo: pageInfo
-  getPaginatedTableRows: (selected: any) => Promise<any>
-  onChangePerPage: (perPage: number) => Promise<any>
+  getPaginatedTableRows: (selected: any) => Promise<any> | void
+  onChangePerPage: (perPage: number) => Promise<any> | void
   lengthItem: number
 }
 
