@@ -37,3 +37,10 @@ export function formatDate(dateString: string): string {
   // if parsed then format to 'DD/MM/YYYY', if not then return 'Invalid Date'
   return parsedDate ? parsedDate.format('DD/MM/YYYY') : 'Invalid Date'
 }
+
+export const formatDateTime = (dateString: string): string => {
+  const day = dayjs(dateString)
+  const roundedSeconds = Math.round(day.second()).toString().padStart(2, '0') // Làm tròn giây
+  const formattedDate = `${day.format('HH:mm')}:${roundedSeconds} ${day.format('DD/MM/YYYY')}`
+  return formattedDate
+}
