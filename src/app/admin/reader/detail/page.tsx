@@ -98,7 +98,7 @@ export default function DetailReader(props: IDetailReaderProps) {
     const file = e.target.files?.[0]
     if (!file) return
     try {
-      const res = await uploadImage(file)
+      const res = await uploadImage(file, 'IdentityCards')
       console.log(res)
       setCardID((prev) => ({ ...prev, url: res.data.url }))
       formik.setFieldValue(fieldName, res.data.url)
