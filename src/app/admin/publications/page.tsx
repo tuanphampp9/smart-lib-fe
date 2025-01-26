@@ -10,7 +10,6 @@ import { GridColDef } from '@mui/x-data-grid'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import EditIcon from '@mui/icons-material/Edit'
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { PublicationTypeResponse } from '@/lib/types/PublicationType'
 import { StyledTextField } from '@/styles/commonStyle'
 import SearchIcon from '@mui/icons-material/Search'
@@ -29,8 +28,6 @@ export default function Publications(props: IPublicationsProps) {
     PublicationTypeResponse[]
   >([])
   const [loading, setLoading] = React.useState<boolean>(false)
-  const [loadingCreatePublication, setLoadingCreatePublication] =
-    React.useState<string>('')
   const [pageInfo, setPageInfo] = React.useState<pageInfo>({
     page: 1,
     itemPerPage: 5,
@@ -40,7 +37,7 @@ export default function Publications(props: IPublicationsProps) {
   const fetchListPublications = async (
     page: number,
     size: number,
-    identityCard: string = ''
+    namePublication: string = ''
   ) => {
     try {
       setLoading(true)

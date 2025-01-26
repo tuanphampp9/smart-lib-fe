@@ -7,6 +7,13 @@
   --foreground: #171717;
 }
 
+tr,
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,7 +26,6 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
-
 
 @layer utilities {
   .scrollbar::-webkit-scrollbar {

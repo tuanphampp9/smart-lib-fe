@@ -19,7 +19,7 @@ export interface PublicationTypeBase {
 }
 
 export interface PublicationTypeResponse extends PublicationTypeBase {
-  id: string
+  id: number
   authors: AuthorType[]
   publisher: PublisherType
   categories: CategoryType[]
