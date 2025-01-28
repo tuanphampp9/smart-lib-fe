@@ -25,7 +25,7 @@ export default function Account(props: IAccountProps) {
         handleErrorCode(error)
       }
     }
-    if (['/register', '/login'].includes(pathName)) return
+    if (['/register', '/login', '/'].includes(pathName)) return
     fetchMe()
   }, [])
   return <div></div>

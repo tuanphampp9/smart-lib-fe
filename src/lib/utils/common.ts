@@ -1,7 +1,7 @@
 import { toast } from 'react-toastify'
 import { GENDER_ENUM } from '../constant/common'
 import dayjs from 'dayjs'
-
+import slugify from 'slugify'
 export const handleErrorCode = (error: any, customActionErr?: () => void) => {
   const errorMessage = `${error.response?.data?.statusCode}: ${error.response?.data?.message}`
   toast.error(errorMessage)
@@ -43,4 +43,9 @@ export const formatDateTime = (dateString: string): string => {
   const roundedSeconds = Math.round(day.second()).toString().padStart(2, '0') // Làm tròn giây
   const formattedDate = `${day.format('HH:mm')}:${roundedSeconds} ${day.format('DD/MM/YYYY')}`
   return formattedDate
+}
+
+export const convertSlugify = (str: string): string => {
+  if (!str) return ''
+  return slugify(str, { lower: true, locale: 'vi' })
 }

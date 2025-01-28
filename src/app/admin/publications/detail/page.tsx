@@ -117,6 +117,11 @@ export default function PublicationDetail(props: IPublicationDetailProps) {
           console.log(res)
           toast.success('Thêm mới ấn phẩm thành công')
           formik.resetForm()
+          //reset input file
+          setBannerImg({ url: '', loading: false })
+          if (fileInputIdCardRef.current) {
+            fileInputIdCardRef.current.value = ''
+          }
         }
       } catch (error: any) {
         handleErrorCode(error)
