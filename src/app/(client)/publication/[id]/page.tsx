@@ -9,7 +9,7 @@ export interface IPublicationDetailProps {
 export default async function PublicationDetail(
   props: IPublicationDetailProps
 ) {
-  const { params } = props
+  const params = await props.params
   const id = await params.id
   const words = id.split('.html')
   const prefix = words[0].split('-')

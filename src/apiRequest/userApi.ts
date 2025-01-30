@@ -42,3 +42,19 @@ export const updateUser = async (user: UserType) => {
   const response = await instant.put(`${API_DOMAIN}/v1/users`, user)
   return response
 }
+
+export const createRating = async (data: {
+  userId: string
+  publicationId: string
+  rating: number | null
+}) => {
+  const response = await instant.post(`${API_DOMAIN}/v1/users/ratings`, data)
+  return response
+}
+
+export const getRating = async (userId: string, publicationId: string) => {
+  const response = await instant.get(
+    `${API_DOMAIN}/v1/users/${userId}/ratings/${publicationId}`
+  )
+  return response
+}

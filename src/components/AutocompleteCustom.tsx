@@ -11,7 +11,6 @@ export interface IAutoCompleteCustomProps {
 
 export default function AutoCompleteCustom(props: IAutoCompleteCustomProps) {
   const { listData, fieldShow, placeholder, onChange, value } = props
-  console.log(value)
   return (
     <Autocomplete
       options={listData}

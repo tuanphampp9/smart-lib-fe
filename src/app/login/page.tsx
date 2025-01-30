@@ -35,16 +35,16 @@ export default function Login(props: ILoginProps) {
       console.log(values)
       try {
         const res = await login(values.username, values.password)
-        const lastPage = params.get('redirect')
+        const lastPage = params.get('redirect') ?? ''
         if (res.status === 200) {
           localStorage.setItem('token', res.data.data.access_token)
           //set token into next server
           await setTokenNextServer(res.data.data.access_token)
           toast.success('Đăng nhập thành công')
           if (res.data.data.user.role.name === 'ADMIN') {
-            router.push(lastPage || '/admin')
+            router.push('/admin')
           } else if (res.data.data.user.role.name === 'READER') {
-            router.push(lastPage || '/')
+            router.push('/')
           }
           dispatch(
             setInfoUser({

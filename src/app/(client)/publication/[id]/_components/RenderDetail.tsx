@@ -1,10 +1,15 @@
 'use client'
 import { getPublication } from '@/apiRequest/publicationApi'
+import { createRating, getRating } from '@/apiRequest/userApi'
+import RatingCustom from '@/components/RatingCustom'
 import TabPanelCustom from '@/components/TabPanelCustom'
 import { PublicationTypeResponse } from '@/lib/types/PublicationType'
 import { handleErrorCode } from '@/lib/utils/common'
-import { CircularProgress } from '@mui/material'
+import { RootState } from '@/store/store'
+import { Box, CircularProgress, Rating, Typography } from '@mui/material'
 import * as React from 'react'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
 
 export interface IRenderDetailProps {
   publicationId: string
@@ -15,7 +20,9 @@ export default function RenderDetail(props: IRenderDetailProps) {
   const [publication, setPublication] = React.useState<PublicationTypeResponse>(
     {} as PublicationTypeResponse
   )
+  const { user } = useSelector((state: RootState) => state.user)
   const [loading, setLoading] = React.useState<boolean>(true)
+  const [rating, setRating] = React.useState<number | null>(null)
   const fetchPublication = async () => {
     try {
       const res = await getPublication(publicationId)
@@ -148,6 +155,35 @@ export default function RenderDetail(props: IRenderDetailProps) {
       content: <div>{publication?.description}</div>,
     },
   ]
+  const handleCreateRating = async (value: number | null) => {
+    try {
+      const res = await createRating({
+        userId: user.id ?? '',
+        publicationId: publicationId,
+        rating: value,
+      })
+      setRating(value)
+      toast.success(res.data.data)
+      console.log(res)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
+  const fetchRatingByUser = async () => {
+    try {
+      const res = await getRating(user.id ?? '', publicationId)
+      if (res.data.data === 0) {
+        setRating(null)
+        return
+      }
+      setRating(res.data.data)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
+  React.useEffect(() => {
+    if (user.id) fetchRatingByUser()
+  }, [user.id])
   return (
     <div className='flex justify-center h-screen'>
       <div className='container mt-5'>
@@ -158,13 +194,32 @@ export default function RenderDetail(props: IRenderDetailProps) {
             </div>
           </div>
         ) : (
-          <div className='flex items-start gap-3'>
-            <img
-              src={publication.bannerImg}
-              alt={publication.name}
-              className='w-[200px]'
-            />
-            <TabPanelCustom listTabs={listTabs} />
+          <div>
+            <Box className='border-b-4 border-red-800'>
+              <Typography
+                variant='h5'
+                fontWeight={500}
+                className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md'
+              >
+                Thông tin ấn phẩm
+              </Typography>
+            </Box>
+            <div className='flex items-start gap-3'>
+              <div>
+                <img
+                  src={publication.bannerImg}
+                  alt={publication.name}
+                  className='w-[200px]'
+                />
+                <RatingCustom
+                  value={rating}
+                  onchange={async (newValue) => {
+                    await handleCreateRating(newValue)
+                  }}
+                />
+              </div>
+              <TabPanelCustom listTabs={listTabs} />
+            </div>
           </div>
         )}
       </div>

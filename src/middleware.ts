@@ -25,6 +25,9 @@ export default async function middleware(request: NextRequest) {
       })
       return response
     }
+    if (decoded.user.roleName === 'READER' && pathName.includes('/admin')) {
+      return NextResponse.redirect(new URL(`/`, request.nextUrl))
+    }
   }
 
   return NextResponse.next()

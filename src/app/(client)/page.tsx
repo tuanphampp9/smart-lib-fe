@@ -142,11 +142,11 @@ export default function Home(props: IHomeProps) {
             filterListPublications(1, 10, '')
           }}
         >
-          <div className='grid grid-cols-4 gap-4'>
+          <div className='grid grid-cols-5 gap-4'>
             {listPublications.map((item, index) => (
               <div
                 key={index}
-                className='w-[200px] cursor-pointer'
+                className='w-[250px] cursor-pointer shadow-sm p-3 transition-transform duration-300 ease-in-out transform hover:-translate-y-2 hover:shadow-md'
                 onClick={() => {
                   router.push(
                     `/publication/${convertSlugify(item.name)}-${item.id}.html`
