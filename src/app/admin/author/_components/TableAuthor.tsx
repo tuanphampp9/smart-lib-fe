@@ -117,6 +117,13 @@ export default function TableAuthor(props: ITableAuthorProps) {
       },
     },
     {
+      field: 'numberOfPublications',
+      headerName: 'Số ấn phẩm',
+      headerAlign: 'left',
+      align: 'left',
+      minWidth: 150,
+    },
+    {
       field: 'edit',
       headerName: 'Sửa',
       headerAlign: 'center',
@@ -182,7 +189,7 @@ export default function TableAuthor(props: ITableAuthorProps) {
           sx={{
             maxWidth: '400px',
           }}
-          value={name}
+          value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           slotProps={{
             input: {

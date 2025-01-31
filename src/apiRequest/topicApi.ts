@@ -37,3 +37,18 @@ export const deleteTopic = async (id: string) => {
   const response = await instant.delete(`${API_DOMAIN}/v1/topics/${id}`)
   return response
 }
+
+export const uploadExcel = async (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await instant.post(
+    `${API_DOMAIN}/v1/topics/import-excel`,
+    formData,
+    {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  )
+  return response
+}

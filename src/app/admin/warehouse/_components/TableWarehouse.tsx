@@ -74,6 +74,13 @@ export default function TableWarehouse(props: ITableWarehouseProps) {
       flex: 1,
     },
     {
+      field: 'numberOfPublications',
+      headerName: 'Số ấn phẩm',
+      headerAlign: 'left',
+      align: 'left',
+      minWidth: 150,
+    },
+    {
       field: 'edit',
       headerName: 'Sửa',
       headerAlign: 'center',
