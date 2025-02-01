@@ -6,10 +6,11 @@ export interface IDialogCustomProps {
   setIsModalOpen: (isModalOpen: boolean) => void
   children?: React.ReactNode
   title: string
+  width?: number
 }
 
 export default function DialogCustom(props: IDialogCustomProps) {
-  const { isModalOpen, children, title, setIsModalOpen } = props
+  const { isModalOpen, children, title, setIsModalOpen, width = 520 } = props
   const handleCancel = () => {
     setIsModalOpen(false)
   }
@@ -19,6 +20,7 @@ export default function DialogCustom(props: IDialogCustomProps) {
       open={isModalOpen}
       onCancel={handleCancel}
       footer={null}
+      width={width}
     >
       {children}
     </Modal>

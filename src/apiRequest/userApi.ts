@@ -58,3 +58,24 @@ export const getRating = async (userId: string, publicationId: string) => {
   )
   return response
 }
+
+export const deletePubFromCart = async (cardId: string) => {
+  const response = await instant.delete(`${API_DOMAIN}/v1/users/cart/${cardId}`)
+  return response
+}
+
+export const addPubToCart = async (data: {
+  userId: string
+  publicationId: number
+  quantity: number
+}) => {
+  const response = await instant.post(`${API_DOMAIN}/v1/users/cart`, data)
+  return response
+}
+
+export const minusPubFromCart = async (cardId: string) => {
+  const response = await instant.put(
+    `${API_DOMAIN}/v1/users/cart/minus/${cardId}`
+  )
+  return response
+}

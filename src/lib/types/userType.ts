@@ -10,4 +10,19 @@ export interface UserType {
   password?: string
   gender: string
   cardRead?: any
+  cartUsers?: CartUserType[]
+}
+export interface CartUserType {
+  id: string
+  userId: string
+  publicationId: string
+  quantity: number
+  createdBy: string
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+  publication: {
+    name: string
+    bannerImg: string
+  }
 }

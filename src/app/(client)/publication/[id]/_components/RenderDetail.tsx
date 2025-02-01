@@ -1,6 +1,6 @@
 'use client'
 import { getPublication } from '@/apiRequest/publicationApi'
-import { createRating, getRating } from '@/apiRequest/userApi'
+import { addPubToCart, createRating, getRating } from '@/apiRequest/userApi'
 import RatingCustom from '@/components/RatingCustom'
 import TabPanelCustom from '@/components/TabPanelCustom'
 import { PublicationTypeResponse } from '@/lib/types/PublicationType'
@@ -8,14 +8,17 @@ import { handleErrorCode } from '@/lib/utils/common'
 import { RootState } from '@/store/store'
 import { Box, CircularProgress, Rating, Typography } from '@mui/material'
 import * as React from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
+import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
+import { addPublicationCart } from '@/store/slices/userSlice'
 
 export interface IRenderDetailProps {
   publicationId: string
 }
 
 export default function RenderDetail(props: IRenderDetailProps) {
+  const dispatch = useDispatch()
   const { publicationId } = props
   const [publication, setPublication] = React.useState<PublicationTypeResponse>(
     {} as PublicationTypeResponse
@@ -184,6 +187,20 @@ export default function RenderDetail(props: IRenderDetailProps) {
   React.useEffect(() => {
     if (user.id) fetchRatingByUser()
   }, [user.id])
+  const handleAddPubToCart = async () => {
+    try {
+      const res = await addPubToCart({
+        userId: user.id ?? '',
+        publicationId: parseInt(publicationId),
+        quantity: 1,
+      })
+      console.log(res)
+      toast.success('Thêm ấn phẩm vào giỏ hàng thành công')
+      dispatch(addPublicationCart(res.data.data))
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
   return (
     <div className='flex justify-center h-screen'>
       <div className='container mt-5'>
@@ -217,6 +234,12 @@ export default function RenderDetail(props: IRenderDetailProps) {
                     await handleCreateRating(newValue)
                   }}
                 />
+                <div
+                  className='p-2 bg-red-800 text-white rounded-md cursor-pointer flex justify-center'
+                  onClick={handleAddPubToCart}
+                >
+                  Đặt mượn <AddShoppingCartIcon />
+                </div>
               </div>
               <TabPanelCustom listTabs={listTabs} />
             </div>
