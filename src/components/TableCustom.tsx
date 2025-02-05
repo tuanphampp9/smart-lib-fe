@@ -37,6 +37,7 @@ interface ITableCustomProps {
     | undefined
 }
 export default function TableCustom(props: ITableCustomProps) {
+  const [selectionModel, setSelectionModel] = React.useState([])
   const {
     rows,
     columns,

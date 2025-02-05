@@ -2,7 +2,7 @@
 import { logout } from '@/apiRequest/authApi'
 import MenuHeader from '@/app/(client)/_components/MenuHeader'
 import { RootState } from '@/store/store'
-import { Box, Typography } from '@mui/material'
+import { Box, Button, Typography } from '@mui/material'
 import Link from 'next/link'
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,13 +14,15 @@ import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { Popconfirm } from 'antd'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import { handleErrorCode } from '@/lib/utils/common'
+import { convertSlugify, handleErrorCode } from '@/lib/utils/common'
 import {
   addPubToCart,
   deletePubFromCart,
   minusPubFromCart,
 } from '@/apiRequest/userApi'
 import { deleteCart, updateQuantity } from '@/store/slices/userSlice'
+import LoadingButton from '@mui/lab/LoadingButton'
+import { createBorrowSlipForClient } from '@/apiRequest/borrowSlipApi'
 
 export interface IHeaderProps {}
 
@@ -32,6 +34,10 @@ export default function Header(props: IHeaderProps) {
     await logout()
     toast.success('Đăng xuất thành công')
   }
+  const [loadingSubmit, setLoadingSubmit] = React.useState<boolean>(false)
+  const [listCartIdSelected, setListCartIdSelected] = React.useState<string[]>(
+    []
+  )
   const dispatch = useDispatch()
   const columnCart: GridColDef[] = [
     {
@@ -61,7 +67,14 @@ export default function Header(props: IHeaderProps) {
       align: 'left',
       renderCell: (params) => {
         if (!params.row.publication.name) return ''
-        return params.row.publication.name
+        return (
+          <a
+            href={`/publication/${convertSlugify(params.row.publication.name)}-${params.row.publicationId}.html`}
+            target='_blank'
+          >
+            {params.row.publication.name}
+          </a>
+        )
       },
     },
     {
@@ -128,6 +141,24 @@ export default function Header(props: IHeaderProps) {
       handleErrorCode(error)
     }
   }
+  const handleCreateBorrowSlip = async () => {
+    try {
+      setLoadingSubmit(true)
+      const res = await createBorrowSlipForClient({
+        cardId: user.cardRead.cardId ?? '',
+        cartIds: listCartIdSelected,
+      })
+      console.log(res)
+      toast.success('Đặt mượn thành công')
+      setListCartIdSelected([])
+      setOpenModalCart(false)
+      listCartIdSelected.forEach((id) => dispatch(deleteCart(id as string)))
+    } catch (error: any) {
+      handleErrorCode(error)
+    } finally {
+      setLoadingSubmit(false)
+    }
+  }
   const handleAddPubToCart = async (
     userId: string,
     publicationId: number,
@@ -166,6 +197,10 @@ export default function Header(props: IHeaderProps) {
     } catch (error: any) {
       handleErrorCode(error)
     }
+  }
+  const onRowSelectionModelChange = (rowSelectionModel: any) => {
+    console.log(rowSelectionModel)
+    setListCartIdSelected(rowSelectionModel)
   }
   return (
     <div>
@@ -222,7 +257,29 @@ export default function Header(props: IHeaderProps) {
           setIsModalOpen={setOpenModalCart}
           children={
             <div>
-              <TableCustom rows={user.cartUsers ?? []} columns={columnCart} />
+              <TableCustom
+                rows={user.cartUsers ?? []}
+                columns={columnCart}
+                onRowSelectionModelChange={onRowSelectionModelChange}
+              />
+              <div>
+                <LoadingButton
+                  fullWidth
+                  variant='contained'
+                  loading={loadingSubmit}
+                  sx={{
+                    my: 3,
+                    py: 2,
+                    '&.Mui-disabled': {
+                      backgroundColor: 'gray', // Màu nền khi button bị disabled
+                    },
+                  }}
+                  disabled={listCartIdSelected.length === 0}
+                  onClick={handleCreateBorrowSlip}
+                >
+                  Đặt mượn
+                </LoadingButton>
+              </div>
             </div>
           }
           width={800}

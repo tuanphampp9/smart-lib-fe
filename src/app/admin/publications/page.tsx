@@ -194,6 +194,13 @@ export default function Publications(props: IPublicationsProps) {
       minWidth: 200,
     },
     {
+      field: 'totalQuantity',
+      headerName: 'Tổng số lượng',
+      headerAlign: 'left',
+      align: 'left',
+      minWidth: 200,
+    },
+    {
       field: 'edit',
       headerName: 'Sửa',
       headerAlign: 'left',

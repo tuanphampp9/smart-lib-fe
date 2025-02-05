@@ -34,16 +34,19 @@ export default function Reader(props: IReaderProps) {
   const fetchListReaders = async (
     page: number,
     size: number,
-    identityCard: string = ''
+    identityCard: string = '',
+    cardNumber: string = ''
   ) => {
     try {
+      let buildQuery = `role.name ! 'ADMIN'`
+      if (identityCard) {
+        buildQuery += ` and identityCardNumber like '%${identityCard}%'`
+      }
+      if (cardNumber) {
+        buildQuery += ` and cardRead.cardId: '${cardNumber}'`
+      }
       setLoading(true)
-      const res = await getListReaders(
-        page,
-        size,
-        `role.name ! 'ADMIN' and identityCardNumber like '%${identityCard}%'`
-      )
-      console.log(res)
+      const res = await getListReaders(page, size, buildQuery)
       setPageInfo({
         page: res.data.meta.page,
         itemPerPage: res.data.meta.pageSize,
@@ -197,28 +200,50 @@ export default function Reader(props: IReaderProps) {
   return (
     <div>
       <div className='flex justify-between items-center'>
-        <StyledTextField
-          margin='normal'
-          fullWidth
-          type='text'
-          placeholder='Nhập CCCD muốn tìm kiếm'
-          className='!mt-1'
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              fetchListReaders(1, pageInfo.itemPerPage, identityCard)
-            }
-          }}
-          sx={{
-            maxWidth: '400px',
-          }}
-          value={identityCard}
-          onChange={(e) => setIdentityCard(e.target.value)}
-          slotProps={{
-            input: {
-              endAdornment: <SearchIcon />,
-            },
-          }}
-        />
+        <div className='flex items-center gap-3'>
+          <StyledTextField
+            margin='normal'
+            fullWidth
+            type='text'
+            placeholder='Nhập CCCD muốn tìm kiếm'
+            className='!mt-1'
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                fetchListReaders(1, pageInfo.itemPerPage, identityCard)
+              }
+            }}
+            sx={{
+              maxWidth: '400px',
+            }}
+            value={identityCard}
+            onChange={(e) => setIdentityCard(e.target.value)}
+            slotProps={{
+              input: {
+                endAdornment: <SearchIcon />,
+              },
+            }}
+          />
+          <StyledTextField
+            margin='normal'
+            fullWidth
+            type='text'
+            placeholder='Nhập mã thẻ đọc muốn tìm kiếm'
+            className='!mt-1'
+            onKeyDown={(e: any) => {
+              if (e.key === 'Enter') {
+                fetchListReaders(1, pageInfo.itemPerPage, '', e.target.value)
+              }
+            }}
+            sx={{
+              maxWidth: '400px',
+            }}
+            slotProps={{
+              input: {
+                endAdornment: <SearchIcon />,
+              },
+            }}
+          />
+        </div>
         <Button
           startIcon={<AddIcon />}
           variant='contained'
