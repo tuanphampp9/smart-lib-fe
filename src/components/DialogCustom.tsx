@@ -7,12 +7,23 @@ export interface IDialogCustomProps {
   children?: React.ReactNode
   title: string
   width?: number
+  handleLogicCancel?: () => void
 }
 
 export default function DialogCustom(props: IDialogCustomProps) {
-  const { isModalOpen, children, title, setIsModalOpen, width = 520 } = props
+  const {
+    isModalOpen,
+    children,
+    title,
+    setIsModalOpen,
+    width = 520,
+    handleLogicCancel,
+  } = props
   const handleCancel = () => {
     setIsModalOpen(false)
+    if (handleLogicCancel) {
+      handleLogicCancel()
+    }
   }
   return (
     <Modal

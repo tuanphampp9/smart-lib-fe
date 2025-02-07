@@ -1,21 +1,39 @@
 'use client'
-import { getListBorrowSlips } from '@/apiRequest/borrowSlipApi'
+import {
+  acceptBorrowSlip,
+  deleteBorrowSlip,
+  getListBorrowSlips,
+  returnBorrowSlip,
+} from '@/apiRequest/borrowSlipApi'
+import { getReader } from '@/apiRequest/userApi'
+import Card from '@/components/Card'
+import DialogCustom from '@/components/DialogCustom'
+import PaginationCustom from '@/components/PaginationCustom'
+import TableCustom from '@/components/TableCustom'
 import { BorrowSlipType } from '@/lib/types/BorrowSlipsType'
 import { pageInfo } from '@/lib/types/commonType'
+import { UserType } from '@/lib/types/userType'
 import { formatDateTime, handleErrorCode } from '@/lib/utils/common'
-import { Box, Button, Chip, IconButton } from '@mui/material'
+import { StyledTextField } from '@/styles/commonStyle'
+import AddIcon from '@mui/icons-material/Add'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
+import EditIcon from '@mui/icons-material/Edit'
+import PanToolAltIcon from '@mui/icons-material/PanToolAlt'
+import VisibilityIcon from '@mui/icons-material/Visibility'
+import LoadingButton from '@mui/lab/LoadingButton'
+import {
+  Box,
+  Button,
+  Chip,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
+import { Popconfirm, Select } from 'antd'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import EditIcon from '@mui/icons-material/Edit'
-import AddIcon from '@mui/icons-material/Add'
-import TableCustom from '@/components/TableCustom'
-import PaginationCustom from '@/components/PaginationCustom'
-import { getReader } from '@/apiRequest/userApi'
-import { UserType } from '@/lib/types/userType'
-import DialogCustom from '@/components/DialogCustom'
-import Card from '@/components/Card'
-import VisibilityIcon from '@mui/icons-material/Visibility'
+import { toast } from 'react-toastify'
 export interface IBorrowPublicationProps {}
 
 export default function BorrowPublication(props: IBorrowPublicationProps) {
@@ -36,7 +54,16 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
   >([])
   const [borrowSlipSelected, setBorrowSlipSelected] =
     React.useState<BorrowSlipType>({} as BorrowSlipType)
+  const [note, setNote] = React.useState<string>('')
+  const [registrationUniqueReturn, setRegistrationUniqueReturn] =
+    React.useState<
+      {
+        registrationId: string
+        status: string
+      }[]
+    >([])
   const [loading, setLoading] = React.useState<boolean>(false)
+  const [loadingBtnReturn, setLoadingBtnReturn] = React.useState<boolean>(false)
   const fetchListBorrowSlips = async (page: number, size: number) => {
     try {
       setLoading(true)
@@ -109,6 +136,17 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
       },
     },
     {
+      field: 'dueDate',
+      headerName: 'Ngày hẹn trả',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        if (!params.value) return ''
+        return formatDateTime(params.value as string)
+      },
+    },
+    {
       field: 'returnDate',
       headerName: 'Ngày trả',
       width: 220,
@@ -148,6 +186,14 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
             onClick={() => {
               setOpenModalViewDetail(true)
               setBorrowSlipSelected(params.row as BorrowSlipType)
+              const dataRegistrationUniqueReturn =
+                params.row.borrowSlipDetails.map((item: any) => {
+                  return {
+                    registrationId: item.registrationUnique.registrationId,
+                    status: item.registrationUnique.status,
+                  }
+                })
+              setRegistrationUniqueReturn(dataRegistrationUniqueReturn)
             }}
           >
             <VisibilityIcon />
@@ -171,26 +217,91 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
         )
       },
     },
-
+    {
+      field: 'note',
+      headerName: 'Ghi chú',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        return params.value
+      },
+    },
+    {
+      field: 'accept',
+      headerName: 'Kích hoạt',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        if (params.row.status === 'NOT_BORROWED')
+          return (
+            <Tooltip title='Người đọc đã tới lấy ấn phẩm?' arrow>
+              <IconButton
+                onClick={async () => {
+                  await handleAcceptBorrowSlip(params.row.id)
+                }}
+              >
+                <PanToolAltIcon />
+              </IconButton>
+            </Tooltip>
+          )
+      },
+    },
     {
       field: 'edit',
       headerName: 'Sửa',
       headerAlign: 'left',
       renderCell: (params) => {
+        if (params.row.status === 'NOT_BORROWED')
+          return (
+            <IconButton
+              onClick={() => {
+                router.push(
+                  `/admin/import-publications/detail?importReceiptId=${params.row.id}`
+                )
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          )
+      },
+    },
+    {
+      field: 'delete',
+      headerName: 'Xoá',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
         return (
-          <IconButton
-            onClick={() => {
-              router.push(
-                `/admin/import-publications/detail?importReceiptId=${params.row.id}`
-              )
+          <Popconfirm
+            title='Thông báo'
+            description={`Bạn có chắc chắn muốn xóa phiếu mượn này không?`}
+            okText='Có'
+            cancelText='Không'
+            overlayStyle={{
+              maxWidth: '300px',
             }}
+            onConfirm={() => handleDeleteBorrowSlip(params.row.id)}
           >
-            <EditIcon />
-          </IconButton>
+            <DeleteOutlineIcon className='cursor-pointer' color='error' />
+          </Popconfirm>
         )
       },
     },
   ]
+
+  const handleAcceptBorrowSlip = async (borrowSlipId: string) => {
+    try {
+      // handle accept borrow slip
+      const res = await acceptBorrowSlip(borrowSlipId)
+      toast.success('Kích hoạt phiếu mượn thành công')
+      fetchListBorrowSlips(pageInfo.page, pageInfo.itemPerPage)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
 
   const getPaginatedTableRows = async (selected: number) => {
     try {
@@ -201,11 +312,6 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
   }
   const handleChangePerPage = async (perPage: number) => {
     await fetchListBorrowSlips(1, perPage)
-  }
-  const renderStatusPublication: Record<string, string> = {
-    AVAILABLE: 'Có sẵn',
-    BORROWED: 'Đang mượn',
-    LOST: 'Thất lạc',
   }
   const columnBorrowSlipDetails: GridColDef[] = [
     {
@@ -236,10 +342,77 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
       headerAlign: 'left',
       align: 'left',
       renderCell: (params) => {
-        return renderStatusPublication[params.row.registrationUnique.status]
+        return (
+          <Select
+            style={{ width: 120 }}
+            defaultValue={params.row.registrationUnique.status}
+            onChange={(value) =>
+              handleChange(
+                value as string,
+                params.row.registrationUnique.registrationId
+              )
+            }
+            disabled={borrowSlipSelected.status !== 'BORROWING'}
+            options={[
+              { value: 'AVAILABLE', label: 'Sẵn có' },
+              { value: 'BORROWED', label: 'Đang mượn', disabled: true },
+              { value: 'LOST', label: 'Thất lạc' },
+            ]}
+          />
+        )
       },
     },
   ]
+  const handleChange = (value: string, registrationUniqueId: string) => {
+    console.log(`selected ${value}`, registrationUniqueId)
+    const updateRegistrationUniqueReturn = registrationUniqueReturn.map(
+      (item) => {
+        if (item.registrationId === registrationUniqueId) {
+          return {
+            registrationId: item.registrationId,
+            status: value,
+          }
+        }
+        return item
+      }
+    )
+    setRegistrationUniqueReturn(updateRegistrationUniqueReturn)
+  }
+
+  const handleDeleteBorrowSlip = async (borrowSlipId: string) => {
+    try {
+      await deleteBorrowSlip(borrowSlipId)
+      toast.success('Xóa phiếu mượn thành công')
+      fetchListBorrowSlips(pageInfo.page, pageInfo.itemPerPage)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
+  const handleReturnBorrowSlip = async () => {
+    const isHasBorrowed = registrationUniqueReturn.some(
+      (item) => item.status === 'BORROWED'
+    )
+    if (isHasBorrowed) {
+      toast.warning('Vui lòng kiểm tra lại trạng thái của ấn phẩm')
+      return
+    }
+    try {
+      setLoadingBtnReturn(true)
+      const res = await returnBorrowSlip({
+        borrowSlipId: borrowSlipSelected.id,
+        registrationUniqueStatuses: registrationUniqueReturn,
+        note,
+      })
+      toast.success('Trả phiếu mượn thành công')
+      fetchListBorrowSlips(pageInfo.page, pageInfo.itemPerPage)
+      setOpenModalViewDetail(false)
+      setNote('')
+    } catch (error: any) {
+      handleErrorCode(error)
+    } finally {
+      setLoadingBtnReturn(false)
+    }
+  }
   return (
     <div>
       <div className='flex justify-end my-4'>
@@ -284,6 +457,7 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
           title='Chi tiết phiếu mượn'
           isModalOpen={openModalViewDetail}
           setIsModalOpen={setOpenModalViewDetail}
+          handleLogicCancel={() => setNote('')}
           width={800}
           children={
             <div>
@@ -293,6 +467,39 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
                 checkboxSelection={false}
                 isLoading={loading}
               />
+              {borrowSlipSelected.status === 'BORROWING' && (
+                <>
+                  <Typography variant='body1' fontWeight={400}>
+                    Ghi chú
+                  </Typography>
+                  <StyledTextField
+                    margin='normal'
+                    fullWidth
+                    placeholder='Nhập ghi chú'
+                    className='!mt-1'
+                    value={note}
+                    multiline
+                    rows={4}
+                    onChange={(e) => setNote(e.target.value)}
+                  />
+                  <div className='flex justify-end mt-4'>
+                    <LoadingButton
+                      variant='contained'
+                      loading={loadingBtnReturn}
+                      sx={{
+                        py: 2,
+                        px: 4,
+                        '&.Mui-disabled': {
+                          backgroundColor: 'gray', // Màu nền khi button bị disabled
+                        },
+                      }}
+                      onClick={handleReturnBorrowSlip}
+                    >
+                      Xác nhận
+                    </LoadingButton>
+                  </div>
+                </>
+              )}
             </div>
           }
         />

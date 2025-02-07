@@ -26,3 +26,30 @@ export const getListBorrowSlips = async (
   })
   return response
 }
+
+export const deleteBorrowSlip = async (id: string) => {
+  const response = await instant.delete(`${API_DOMAIN}/v1/borrow-slips/${id}`)
+  return response
+}
+
+export const acceptBorrowSlip = async (id: string) => {
+  const response = await instant.put(
+    `${API_DOMAIN}/v1/borrow-slips/${id}/accept`
+  )
+  return response
+}
+
+export const returnBorrowSlip = async (data: {
+  borrowSlipId: string
+  registrationUniqueStatuses: {
+    registrationId: string
+    status: string
+  }[]
+  note: string
+}) => {
+  const response = await instant.put(
+    `${API_DOMAIN}/v1/borrow-slips/${data.borrowSlipId}/return`,
+    data
+  )
+  return response
+}
