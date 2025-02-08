@@ -31,6 +31,7 @@ import {
 } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { Popconfirm, Select } from 'antd'
+import debounce from 'debounce'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -64,10 +65,15 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
     >([])
   const [loading, setLoading] = React.useState<boolean>(false)
   const [loadingBtnReturn, setLoadingBtnReturn] = React.useState<boolean>(false)
-  const fetchListBorrowSlips = async (page: number, size: number) => {
+  const fetchListBorrowSlips = async (
+    page: number,
+    size: number,
+    cardId: string = ''
+  ) => {
     try {
+      const filter = cardId ? `cardRead.cardId: '${cardId}'` : ''
       setLoading(true)
-      const res = await getListBorrowSlips(page, size, '')
+      const res = await getListBorrowSlips(page, size, filter)
       setPageInfo({
         page: res.data.meta.page,
         itemPerPage: res.data.meta.pageSize,
@@ -249,25 +255,6 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
       },
     },
     {
-      field: 'edit',
-      headerName: 'Sửa',
-      headerAlign: 'left',
-      renderCell: (params) => {
-        if (params.row.status === 'NOT_BORROWED')
-          return (
-            <IconButton
-              onClick={() => {
-                router.push(
-                  `/admin/import-publications/detail?importReceiptId=${params.row.id}`
-                )
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          )
-      },
-    },
-    {
       field: 'delete',
       headerName: 'Xoá',
       width: 220,
@@ -413,14 +400,33 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
       setLoadingBtnReturn(false)
     }
   }
+  const handleSearchReadCard = React.useCallback(
+    debounce((cardId: string) => {
+      fetchListBorrowSlips(1, pageInfo.itemPerPage, cardId)
+    }, 500),
+    []
+  )
   return (
     <div>
-      <div className='flex justify-end my-4'>
+      <div className='flex justify-between my-4'>
+        <StyledTextField
+          margin='normal'
+          fullWidth
+          type='text'
+          placeholder='Nhập mã thẻ muốn tìm kiếm'
+          sx={{
+            maxWidth: '400px',
+            m: 0,
+          }}
+          onChange={(e) => {
+            handleSearchReadCard(e.target.value)
+          }}
+        />
         <Button
           startIcon={<AddIcon />}
           variant='contained'
           onClick={() => {
-            router.push('/admin/import-publications/detail')
+            router.push('/admin/borrow-publications/detail')
           }}
         >
           Thêm phiếu mượn

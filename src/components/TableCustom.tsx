@@ -35,9 +35,9 @@ interface ITableCustomProps {
   onRowModesModelChange?:
     | ((rowModesModel: GridRowModesModel, details: GridCallbackDetails) => void)
     | undefined
+  onRowClick?: (params: any) => void
 }
 export default function TableCustom(props: ITableCustomProps) {
-  const [selectionModel, setSelectionModel] = React.useState([])
   const {
     rows,
     columns,
@@ -57,6 +57,7 @@ export default function TableCustom(props: ITableCustomProps) {
     rowModesModel,
     onRowModesModelChange,
     rowSelectionModel,
+    onRowClick,
   } = props
   const getCellClassName: DataGridProps['getCellClassName'] = ({
     row,
@@ -88,6 +89,8 @@ export default function TableCustom(props: ITableCustomProps) {
         getRowId={getRowId}
         editMode={editMode}
         rowModesModel={rowModesModel}
+        onRowClick={onRowClick}
+        isRowSelectable={isRowSelectable}
         autoHeight
         sx={{
           height,
@@ -118,7 +121,6 @@ export default function TableCustom(props: ITableCustomProps) {
         rowSelectionModel={rowSelectionModel}
         onRowModesModelChange={onRowModesModelChange}
         processRowUpdate={handleEditRow}
-        isRowSelectable={isRowSelectable}
         onRowSelectionModelChange={onRowSelectionModelChange}
         getCellClassName={getCellClassName}
         getRowHeight={() => 'auto'}

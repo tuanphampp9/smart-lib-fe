@@ -42,3 +42,22 @@ export const deletePublication = async (id: string) => {
   const response = await instant.delete(`${API_DOMAIN}/v1/publications/${id}`)
   return response
 }
+
+export const getListRegistrationUniques = async (
+  page: number,
+  itemPerPage: number,
+  filter: string
+) => {
+  const response = await instant.get(
+    `${API_DOMAIN}/v1/publications/registration-uniques`,
+    {
+      params: {
+        page,
+        size: itemPerPage,
+        filter,
+        sort: 'createdAt,desc',
+      },
+    }
+  )
+  return response
+}

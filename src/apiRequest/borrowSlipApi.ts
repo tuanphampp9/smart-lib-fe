@@ -53,3 +53,14 @@ export const returnBorrowSlip = async (data: {
   )
   return response
 }
+
+export const createBorrowSlipForAdmin = async (data: {
+  cardId: string
+  registrationIds: string[]
+}) => {
+  const response = await instant.post(
+    `${API_DOMAIN}/v1/admin/borrow-slips`,
+    data
+  )
+  return response
+}

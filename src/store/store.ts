@@ -8,6 +8,7 @@ import publisherSlice from './slices/publisherSlice'
 import languageSlice from './slices/languageSlice'
 import warehouseSlice from './slices/warehouseSlice'
 import authorSlice from './slices/authorSlice'
+import borrowSlipSlice from './slices/borrowSlipSlice'
 const sagaMiddleware = createSagaMiddleware()
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     language: languageSlice,
     warehouse: warehouseSlice,
     author: authorSlice,
+    borrowSlip: borrowSlipSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: false }).concat(sagaMiddleware),

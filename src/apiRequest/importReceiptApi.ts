@@ -37,3 +37,21 @@ export const updateImportReceipt = async (
   )
   return response
 }
+
+export const getListImportReceiptDetails = async (
+  page: number,
+  itemPerPage: number,
+  filter: string
+) => {
+  const response = await instant.get(
+    `${API_DOMAIN}/v1/import-receipts/import-receipt-details`,
+    {
+      params: {
+        page,
+        size: itemPerPage,
+        filter,
+      },
+    }
+  )
+  return response
+}
