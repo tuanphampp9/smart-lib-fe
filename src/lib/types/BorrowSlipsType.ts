@@ -5,6 +5,7 @@ export interface BorrowSlipType {
   id: string
   borrowDate: string
   registerDate: string
+  dueDate: string
   expiredRegisterDate: string
   returnDate: string
   status: string
@@ -19,4 +20,6 @@ export interface BorrowSlipType {
 export interface BorrowSlipDetail {
   id: '0642efb9-1be6-4442-b978-ffb1829d20a4'
   registrationUnique: RegistrationUniqueResponseType
+  nameBook: string
+  publicationId: number
 }

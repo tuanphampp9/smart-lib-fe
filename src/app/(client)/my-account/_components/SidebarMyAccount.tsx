@@ -20,11 +20,6 @@ const menus = [
     href: '/my-account/card-info',
   },
   {
-    id: 3,
-    label: 'Tài liệu đang mượn',
-    href: '/my-account/borrowed-documents',
-  },
-  {
     id: 4,
     label: 'Lịch sử mượn trả',
     href: '/my-account/borrowed-history',

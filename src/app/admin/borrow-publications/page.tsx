@@ -21,6 +21,7 @@ import EditIcon from '@mui/icons-material/Edit'
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import LoadingButton from '@mui/lab/LoadingButton'
+import PrintIcon from '@mui/icons-material/Print'
 import {
   Box,
   Button,
@@ -231,6 +232,27 @@ export default function BorrowPublication(props: IBorrowPublicationProps) {
       align: 'left',
       renderCell: (params) => {
         return params.value
+      },
+    },
+    {
+      field: 'print-receipt',
+      headerName: 'In phiếu mượn',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        if (['BORROWING', 'RETURNED'].includes(params.row.status))
+          return (
+            <PrintIcon
+              className='cursor-pointer'
+              onClick={() => {
+                window.open(
+                  `/print-borrowSlip?borrowSlipId=${params.row.id}`,
+                  '_blank'
+                )
+              }}
+            />
+          )
       },
     },
     {

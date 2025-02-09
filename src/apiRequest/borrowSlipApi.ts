@@ -64,3 +64,8 @@ export const createBorrowSlipForAdmin = async (data: {
   )
   return response
 }
+
+export const getBorrowSlipById = async (id: string) => {
+  const response = await instant.get(`${API_DOMAIN}/v1/borrow-slips/${id}`)
+  return response
+}
