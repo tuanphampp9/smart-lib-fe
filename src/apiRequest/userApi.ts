@@ -47,6 +47,7 @@ export const createRating = async (data: {
   userId: string
   publicationId: string
   rating: number | null
+  borrowSlipDetailId: string
 }) => {
   const response = await instant.post(`${API_DOMAIN}/v1/users/ratings`, data)
   return response

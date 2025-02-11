@@ -21,6 +21,10 @@ import TableCustom from '@/components/TableCustom'
 import PaginationCustom from '@/components/PaginationCustom'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store/store'
+import RatingCustom from '@/components/RatingCustom'
+import PanToolAltIcon from '@mui/icons-material/PanToolAlt'
+import DialogCustom from '@/components/DialogCustom'
+import { createRating } from '@/apiRequest/userApi'
 
 export interface IBorrowedHistoryProps {}
 
@@ -36,6 +40,8 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
   const [listBorrowSlips, setListBorrowSlips] = React.useState<
     BorrowSlipType[]
   >([])
+  const [openModalViewDetail, setOpenModalViewDetail] =
+    React.useState<boolean>(false)
   const [borrowSlipSelected, setBorrowSlipSelected] =
     React.useState<BorrowSlipType>({} as BorrowSlipType)
 
@@ -70,7 +76,6 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
     if (user.id)
       fetchListBorrowSlips(1, pageInfo.itemPerPage, user.cardRead.cardId)
   }, [user.id])
-  console.log(user)
 
   const renderLabelStatus: Record<string, string> = {
     BORROWING: 'Đang mượn',
@@ -193,6 +198,26 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
       },
     },
     {
+      field: 'rating',
+      headerName: 'Đánh giá',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        if (params.row.status === 'RETURNED') {
+          return (
+            <PanToolAltIcon
+              className='cursor-pointer'
+              onClick={() => {
+                setBorrowSlipSelected(params.row)
+                setOpenModalViewDetail(true)
+              }}
+            />
+          )
+        }
+      },
+    },
+    {
       field: 'delete',
       headerName: 'Xoá',
       width: 220,
@@ -246,6 +271,89 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
       handleErrorCode(error)
     }
   }
+
+  const handleCreateRating = async (
+    value: number | null,
+    publicationId: string,
+    returnDate: string,
+    isRated: boolean,
+    borrowSlipDetailId: string
+  ) => {
+    try {
+      if (!isRated) {
+        toast.warning('Bạn đã đánh giá rồi')
+        return
+      }
+      //if returnDate + 3 day < now => can not rating
+      const dateReturn = new Date(returnDate)
+      const dateNow = new Date()
+      dateReturn.setDate(dateReturn.getDate() + 3)
+      if (dateNow > dateReturn) {
+        toast.warning('Bạn chỉ có thể đánh giá trong vòng 3 ngày trả ấn phẩm')
+        return
+      }
+      console.log('rating', value)
+      const res = await createRating({
+        userId: user.id ?? '',
+        publicationId: publicationId,
+        rating: value,
+        borrowSlipDetailId,
+      })
+      // setRating(value)
+      toast.success('Đánh giá thành công')
+      console.log(res)
+      setBorrowSlipSelected(res.data.data)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
+
+  const columnBorrowSlipDetails: GridColDef[] = [
+    {
+      field: 'registrationId',
+      headerName: 'ĐKKB',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        return params.row.registrationUnique.registrationId
+      },
+    },
+    {
+      field: 'nameBook',
+      headerName: 'Tên ấn phẩm',
+      minWidth: 220,
+      headerAlign: 'left',
+      align: 'left',
+      flex: 1,
+      renderCell: (params) => {
+        return params.value
+      },
+    },
+    {
+      field: 'rating',
+      headerName: 'Đánh giá',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        return (
+          <RatingCustom
+            value={params.row?.publicationRating?.rating ?? 0}
+            onchange={(newValue) => {
+              handleCreateRating(
+                newValue,
+                params.row.publicationId,
+                borrowSlipSelected.returnDate,
+                !Boolean(params.row.publicationRating),
+                params.row.id
+              )
+            }}
+          />
+        )
+      },
+    },
+  ]
   return (
     <div>
       <Select
@@ -281,6 +389,25 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
           lengthItem={listBorrowSlips.length}
         />
       </Box>
+      {openModalViewDetail && (
+        <DialogCustom
+          title='Chi tiết phiếu mượn'
+          isModalOpen={openModalViewDetail}
+          setIsModalOpen={setOpenModalViewDetail}
+          handleLogicCancel={() => console.log('cancel')}
+          width={800}
+          children={
+            <div>
+              <TableCustom
+                rows={borrowSlipSelected.borrowSlipDetails ?? []}
+                columns={columnBorrowSlipDetails}
+                checkboxSelection={false}
+                isLoading={loading}
+              />
+            </div>
+          }
+        />
+      )}
     </div>
   )
 }

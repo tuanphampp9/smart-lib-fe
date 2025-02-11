@@ -158,20 +158,7 @@ export default function RenderDetail(props: IRenderDetailProps) {
       content: <div>{publication?.description}</div>,
     },
   ]
-  const handleCreateRating = async (value: number | null) => {
-    try {
-      const res = await createRating({
-        userId: user.id ?? '',
-        publicationId: publicationId,
-        rating: value,
-      })
-      setRating(value)
-      toast.success(res.data.data)
-      console.log(res)
-    } catch (error: any) {
-      handleErrorCode(error)
-    }
-  }
+
   const fetchRatingByUser = async () => {
     try {
       const res = await getRating(user.id ?? '', publicationId)
@@ -228,14 +215,14 @@ export default function RenderDetail(props: IRenderDetailProps) {
                   alt={publication.name}
                   className='w-[200px]'
                 />
-                <RatingCustom
+                {/* <RatingCustom
                   value={rating}
                   onchange={async (newValue) => {
                     await handleCreateRating(newValue)
                   }}
-                />
+                /> */}
                 <div
-                  className='p-2 bg-red-800 text-white rounded-md cursor-pointer flex justify-center'
+                  className='p-2 bg-red-800 text-white rounded-md cursor-pointer flex justify-center mt-4'
                   onClick={handleAddPubToCart}
                 >
                   Đặt mượn <AddShoppingCartIcon />
