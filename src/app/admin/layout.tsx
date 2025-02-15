@@ -87,6 +87,11 @@ const Menus: baseMenu[] = [
   },
   {
     id: 4,
+    title: 'Quản lý bài đăng',
+    path: '/admin/posts',
+  },
+  {
+    id: 5,
     title: 'Báo cáo thống kê',
     subMenuItems: [
       {

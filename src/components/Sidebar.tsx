@@ -74,6 +74,10 @@ const Sidebar = (props: ISidebarProps) => {
                 if (!item.path) {
                   e.preventDefault()
                 }
+                if (item.path) {
+                  router.push(item.path)
+                  return
+                }
                 if (item.subMenu) {
                   const isActiveSubMenu = item.subMenuItems?.some(
                     (item: any) => item.path === pathName
@@ -98,19 +102,21 @@ const Sidebar = (props: ISidebarProps) => {
                 >
                   {item.title}
                 </Typography>
-                <ListItemIcon>
-                  {openItems[item.id] ? (
-                    <KeyboardArrowDownIcon
-                      fontSize='small'
-                      className='text-white'
-                    />
-                  ) : (
-                    <KeyboardArrowRightIcon
-                      fontSize='small'
-                      className='text-white'
-                    />
-                  )}
-                </ListItemIcon>
+                {item?.subMenuItems && (
+                  <ListItemIcon>
+                    {openItems[item.id] ? (
+                      <KeyboardArrowDownIcon
+                        fontSize='small'
+                        className='text-white'
+                      />
+                    ) : (
+                      <KeyboardArrowRightIcon
+                        fontSize='small'
+                        className='text-white'
+                      />
+                    )}
+                  </ListItemIcon>
+                )}
               </ListItem>
             </div>
             {item.subMenuItems && (

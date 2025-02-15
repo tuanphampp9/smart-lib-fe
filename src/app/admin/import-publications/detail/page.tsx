@@ -26,7 +26,6 @@ import { getListPublications } from '@/apiRequest/publicationApi'
 import { GridColDef } from '@mui/x-data-grid'
 import SearchIcon from '@mui/icons-material/Search'
 import TableCustom from '@/components/TableCustom'
-import PaginationCustom from '@/components/PaginationCustom'
 import debounce from 'debounce'
 export interface IImportReceiptDetailProps {}
 
