@@ -32,6 +32,10 @@ export const getPost = async (id: string) => {
   return response
 }
 
+export const getPostForClient = async (id: string) => {
+  const response = await instant.get(`${API_DOMAIN}/v1/posts/client/${id}`)
+  return response
+}
 export const updatePost = async (
   id: string,
   data: {

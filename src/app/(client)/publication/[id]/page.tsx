@@ -1,9 +1,7 @@
 import RenderDetail from './_components/RenderDetail'
 
 export interface IPublicationDetailProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
 export default async function PublicationDetail(

@@ -18,6 +18,7 @@ import { WarehouseType } from '@/lib/types/warehouseType'
 import { LanguageType } from '@/lib/types/languageType'
 import AutoCompleteCustom from '@/components/AutocompleteCustom'
 import { useRouter } from 'next/navigation'
+import { pageInfo } from '@/lib/types/commonType'
 const InfiniteScroll = dynamic(
   () => import('react-infinite-scroll-component'),
   { ssr: false }
@@ -28,6 +29,12 @@ export default function Home(props: IHomeProps) {
   const [listPublications, setListPublications] = React.useState<
     PublicationTypeResponse[]
   >([])
+  const [pageInfo, setPageInfo] = React.useState<pageInfo>({
+    page: 1,
+    itemPerPage: 10,
+    totalItem: 0,
+    totalPage: 0,
+  })
   const [loading, setLoading] = React.useState<boolean>(true)
   const [hasMore, setHasMore] = React.useState<boolean>(true)
   const [authors, setAuthors] = React.useState<AuthorType[]>([])
@@ -45,37 +52,40 @@ export default function Home(props: IHomeProps) {
   const fetchListPublications = async (
     page: number,
     size: number,
-    filter: string
+    filter: string,
+    isFilter: boolean = false
   ) => {
     try {
       const res = await getListPublications(page, size, filter)
-      console.log(res)
-      setListPublications(res.data.result)
+      setPageInfo({
+        page: res.data.meta.page,
+        itemPerPage: res.data.meta.pageSize,
+        totalItem: res.data.meta.total,
+        totalPage: res.data.meta.pages,
+      })
+      if (isFilter) {
+        setListPublications(res.data.result)
+      } else {
+        setListPublications((prev) => [...prev, ...res.data.result])
+      }
+      if (res.data.result.length < size) {
+        setHasMore(false)
+      }
     } catch (error: any) {
       handleErrorCode(error)
     } finally {
       setLoading(false)
     }
   }
-
-  const filterListPublications = async (
-    page: number,
-    size: number,
-    filter: string
-  ) => {
-    try {
-      const res = await getListPublications(page, size, filter)
-      console.log(res)
-      setListPublications(res.data.result)
-      if (res.data.result.length < size) {
-        setHasMore(false)
-      }
-    } catch (error: any) {
-      handleErrorCode(error)
-    }
-  }
   React.useEffect(() => {
-    fetchListPublications(1, 10, '')
+    fetchListPublications(
+      pageInfo.page,
+      pageInfo.itemPerPage,
+      buildSearchFilter(namePublication),
+      true
+    )
+  }, [filter])
+  React.useEffect(() => {
     fetchListAuthors()
     fetchListPublishers()
     fetchListWarehouses()
@@ -125,56 +135,67 @@ export default function Home(props: IHomeProps) {
           <CircularProgress />
         </Box>
       )
-    } else if (listPublications.length === 0) {
-      return (
-        <Box className='flex justify-center items-center h-80'>
-          <p>Không có dữ liệu</p>
-        </Box>
-      )
     }
     return (
       typeof window !== 'undefined' && (
-        <InfiniteScroll
-          dataLength={listPublications.length}
-          hasMore={hasMore}
-          loader={<h4>Loading...</h4>}
-          next={() => {
-            filterListPublications(1, 10, '')
-          }}
-        >
-          <div className='grid grid-cols-5 gap-4'>
-            {listPublications.map((item, index) => (
-              <div
-                key={index}
-                className='w-[250px] cursor-pointer shadow-sm p-3 transition-transform duration-300 ease-in-out transform hover:-translate-y-2 hover:shadow-md'
-                onClick={() => {
-                  router.push(
-                    `/publication/${convertSlugify(item.name)}-${item.id}.html`
-                  )
-                }}
-              >
-                <img
-                  src={item.bannerImg}
-                  alt={item.name}
-                  className='w-[175px] h-[170px] object-contain'
-                />
-                <h4 className='text-center font-semibold mt-3'>{item.name}</h4>
-                <h4>
-                  Tác giả:{' '}
-                  {item.authors.map((author, index) => (
-                    <span key={index}>{author.fullName}</span>
-                  ))}
-                </h4>
-                <h4>
-                  Nhà xuất bản:{' '}
-                  {item.publisher?.name !== null ? item.publisher?.name : ''}
-                </h4>
-                <h4>Ngôn ngữ: {item.language.name}</h4>
-                <h4>Kho: {item.warehouse.name}</h4>
+        <div>
+          {listPublications.length === 0 ? (
+            <Box className='flex justify-center items-center h-80'>
+              <p>Không có dữ liệu</p>
+            </Box>
+          ) : (
+            <InfiniteScroll
+              dataLength={listPublications.length}
+              hasMore={hasMore}
+              loader={<h4>Loading...</h4>}
+              next={() => {
+                let page = pageInfo.page + 1
+                fetchListPublications(
+                  page,
+                  pageInfo.itemPerPage,
+                  buildSearchFilter(namePublication)
+                )
+              }}
+            >
+              <div className='grid grid-cols-5 gap-4'>
+                {listPublications.map((item, index) => (
+                  <div
+                    key={index}
+                    className='w-[250px] cursor-pointer shadow-sm p-3 transition-transform duration-300 ease-in-out transform hover:-translate-y-2 hover:shadow-md'
+                    onClick={() => {
+                      router.push(
+                        `/publication/${convertSlugify(item.name)}-${item.id}.html`
+                      )
+                    }}
+                  >
+                    <img
+                      src={item.bannerImg}
+                      alt={item.name}
+                      className='w-[175px] h-[170px] object-contain'
+                    />
+                    <h4 className='text-center font-semibold mt-3'>
+                      {item.name}
+                    </h4>
+                    <h4>
+                      Tác giả:{' '}
+                      {item.authors.map((author, index) => (
+                        <span key={index}>{author.fullName}</span>
+                      ))}
+                    </h4>
+                    <h4>
+                      Nhà xuất bản:{' '}
+                      {item.publisher?.name !== null
+                        ? item.publisher?.name
+                        : ''}
+                    </h4>
+                    <h4>Ngôn ngữ: {item.language.name}</h4>
+                    <h4>Kho: {item.warehouse.name}</h4>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </InfiniteScroll>
+            </InfiniteScroll>
+          )}
+        </div>
       )
     )
   }
@@ -182,7 +203,7 @@ export default function Home(props: IHomeProps) {
     debounce((name: string) => {
       fetchListPublications(1, 10000, buildSearchFilter(name))
     }, 500),
-    []
+    [filter]
   )
   const buildSearchFilter = (namePublication: string) => {
     let stringQuery = namePublication ? `name like '%${namePublication}%'` : ''
@@ -201,9 +222,6 @@ export default function Home(props: IHomeProps) {
     }
     return stringQuery
   }
-  React.useEffect(() => {
-    filterListPublications(1, 10, buildSearchFilter(namePublication))
-  }, [filter])
   return (
     <div>
       <div className='flex justify-center'>

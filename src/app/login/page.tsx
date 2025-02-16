@@ -6,7 +6,7 @@ import * as Yup from 'yup'
 import { StyledTextField } from '@/styles/commonStyle'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { login, setTokenNextServer } from '@/apiRequest/authApi'
 import { handleErrorCode } from '@/lib/utils/common'
 import { toast } from 'react-toastify'
@@ -18,8 +18,6 @@ export default function Login(props: ILoginProps) {
   const [showPassword, setShowPassword] = React.useState<boolean>(false)
   const router = useRouter()
   const dispatch = useDispatch()
-  const searchParams = useSearchParams()
-  const params = new URLSearchParams(searchParams.toString())
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -35,7 +33,6 @@ export default function Login(props: ILoginProps) {
       console.log(values)
       try {
         const res = await login(values.username, values.password)
-        const lastPage = params.get('redirect') ?? ''
         if (res.status === 200) {
           localStorage.setItem('token', res.data.data.access_token)
           //set token into next server
@@ -44,7 +41,7 @@ export default function Login(props: ILoginProps) {
           if (res.data.data.user.role.name === 'ADMIN') {
             router.push('/admin')
           } else if (res.data.data.user.role.name === 'READER') {
-            router.push('/')
+            router.push('/lookup')
           }
           dispatch(
             setInfoUser({

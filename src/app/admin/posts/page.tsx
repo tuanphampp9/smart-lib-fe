@@ -19,15 +19,15 @@ import EditIcon from '@mui/icons-material/Edit'
 import { toast } from 'react-toastify'
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import 'react-quill-new/dist/quill.snow.css'
+import debounce from 'debounce'
 export interface IListPostsProps {}
 
 export default function ListPosts(props: IListPostsProps) {
   const router = useRouter()
+  const [title, setTitle] = React.useState('')
   const [filter, setFilter] = React.useState<{
-    title: string
     postType: string
   }>({
-    title: '',
     postType: '',
   })
   const [openModalViewContent, setOpenModalViewDetail] = React.useState(false)
@@ -40,24 +40,18 @@ export default function ListPosts(props: IListPostsProps) {
     totalItem: 0,
     totalPage: 0,
   })
-  const fetchListPosts = async (
-    page: number,
-    size: number,
-    filter: {
-      title: string
-      postType: string
+  const buildQuery = (title: string) => {
+    let query = title ? `title like '%${title}%'` : ''
+    let prefix = title ? ' and' : ''
+    if (filter.postType) {
+      query += `${prefix} postType: '${filter.postType}'`
     }
-  ) => {
+    return query
+  }
+  const fetchListPosts = async (page: number, size: number, filter: string) => {
     try {
-      let buildQuery = ''
-      if (filter.title) {
-        buildQuery += `title like '%${filter.title}%'`
-      }
-      if (filter.postType) {
-        buildQuery += `postType: '${filter.postType}'`
-      }
       setLoading(true)
-      const res = await getListPosts(page, size, buildQuery)
+      const res = await getListPosts(page, size, filter)
       setPageInfo({
         page: res.data.meta.page,
         itemPerPage: res.data.meta.pageSize,
@@ -74,18 +68,18 @@ export default function ListPosts(props: IListPostsProps) {
 
   const getPaginatedTableRows = async (selected: number) => {
     try {
-      await fetchListPosts(selected, pageInfo.itemPerPage, filter)
+      await fetchListPosts(selected, pageInfo.itemPerPage, buildQuery(title))
     } catch (error: any) {
       handleErrorCode(error)
     }
   }
   const handleChangePerPage = async (perPage: number) => {
-    await fetchListPosts(1, perPage, filter)
+    await fetchListPosts(1, perPage, buildQuery(title))
   }
   React.useEffect(() => {
     // call api get list posts
-    fetchListPosts(1, pageInfo.itemPerPage, filter)
-  }, [JSON.stringify(filter)])
+    fetchListPosts(1, pageInfo.itemPerPage, buildQuery(title))
+  }, [filter])
 
   const renderType: Record<string, string> = {
     INTRODUCTION_PUBLICATION: 'Giới thiệu ấn phẩm',
@@ -185,11 +179,18 @@ export default function ListPosts(props: IListPostsProps) {
       // show message delete success
       toast.success('Xóa tin tức thành công')
       // fetch list publications
-      fetchListPosts(pageInfo.page, pageInfo.itemPerPage, filter)
+      fetchListPosts(pageInfo.page, pageInfo.itemPerPage, buildQuery(title))
     } catch (error: any) {
       handleErrorCode(error)
     }
   }
+
+  const handleSearchPost = React.useCallback(
+    debounce((title: string) => {
+      fetchListPosts(pageInfo.page, pageInfo.itemPerPage, buildQuery(title))
+    }, 500),
+    [filter]
+  )
   return (
     <div>
       <div className='flex justify-between items-center'>
@@ -200,16 +201,14 @@ export default function ListPosts(props: IListPostsProps) {
             type='text'
             placeholder='Nhập tiêu đề'
             className='!mt-1'
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                fetchListPosts(1, pageInfo.itemPerPage, filter)
-              }
-            }}
             sx={{
               maxWidth: '400px',
             }}
-            value={filter.title}
-            onChange={(e) => setFilter({ ...filter, title: e.target.value })}
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              handleSearchPost(e.target.value)
+            }}
             slotProps={{
               input: {
                 endAdornment: <SearchIcon />,
@@ -218,7 +217,9 @@ export default function ListPosts(props: IListPostsProps) {
           />
           <Select
             style={{ width: 300 }}
-            onChange={(value) => setFilter({ ...filter, postType: value })}
+            onChange={(value) => {
+              setFilter({ ...filter, postType: value })
+            }}
             defaultValue={''}
             options={[
               { value: '', label: 'Tất cả' },
