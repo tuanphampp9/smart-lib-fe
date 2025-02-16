@@ -8,4 +8,5 @@ export interface postType {
   updatedAt: string
   createdBy: string
   updatedBy: string
+  viewCount: number
 }

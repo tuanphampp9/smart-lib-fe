@@ -45,6 +45,7 @@ export default function RenderDetail(props: IRenderDetailProps) {
               __html: postDetail?.content || '',
             }}
           ></div>
+          <h4 className='font-semibold'>Lượt xem: {postDetail.viewCount}</h4>
         </div>
       )}
     </div>

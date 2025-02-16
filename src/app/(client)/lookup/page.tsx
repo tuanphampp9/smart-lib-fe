@@ -178,9 +178,9 @@ export default function Home(props: IHomeProps) {
                     </h4>
                     <h4>
                       Tác giả:{' '}
-                      {item.authors.map((author, index) => (
-                        <span key={index}>{author.fullName}</span>
-                      ))}
+                      {item.authors
+                        .map((author, index) => author.fullName)
+                        .join(', ')}
                     </h4>
                     <h4>
                       Nhà xuất bản:{' '}
@@ -201,7 +201,12 @@ export default function Home(props: IHomeProps) {
   }
   const handleSearchPublication = React.useCallback(
     debounce((name: string) => {
-      fetchListPublications(1, 10000, buildSearchFilter(name))
+      fetchListPublications(
+        1,
+        pageInfo.itemPerPage,
+        buildSearchFilter(name),
+        true
+      )
     }, 500),
     [filter]
   )

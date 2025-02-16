@@ -134,6 +134,13 @@ export default function ListPosts(props: IListPostsProps) {
       },
     },
     {
+      field: 'viewCount',
+      headerName: 'Lượt xem',
+      minWidth: 150,
+      headerAlign: 'left',
+      align: 'left',
+    },
+    {
       field: 'edit',
       headerName: 'Sửa',
       headerAlign: 'left',

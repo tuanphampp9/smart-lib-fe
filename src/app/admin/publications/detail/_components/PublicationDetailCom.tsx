@@ -111,14 +111,13 @@ export default function PublicationDetailCom(
         if (publicationId) {
           // call api update reader
           const res = await updatePublication(values, publicationId)
-          console.log(res)
           toast.success('Cập nhật ấn phẩm thành công')
         } else {
           // call api create reader
           const res = await createPublication(values)
-          console.log(res)
           toast.success('Thêm mới ấn phẩm thành công')
           formik.resetForm()
+          router.push('/admin/publications')
           //reset input file
           setBannerImg({ url: '', loading: false })
           if (fileInputIdCardRef.current) {
@@ -142,7 +141,6 @@ export default function PublicationDetailCom(
     if (!file) return
     try {
       const res = await uploadImage(file, 'publications')
-      console.log(res)
       setBannerImg((prev) => ({ ...prev, url: res.data.url }))
       formik.setFieldValue(fieldName, res.data.url)
     } catch (error: any) {
@@ -288,7 +286,6 @@ export default function PublicationDetailCom(
     fetchAllData()
   }, [publicationId])
 
-  console.log('formik', formik.values)
   if (loadingGetPublication) return <div>Loading...</div>
   return (
     <div className='w-3/4'>
@@ -382,7 +379,6 @@ export default function PublicationDetailCom(
         </Box>
         <FormControl className='!flex items-center gap-3 !flex-row'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
@@ -409,7 +405,6 @@ export default function PublicationDetailCom(
         </FormControl>
         <FormControl className='!flex items-center gap-3 !flex-row !mt-2'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
@@ -483,7 +478,6 @@ export default function PublicationDetailCom(
         </Box>
         <FormControl className='!flex items-center gap-3 !flex-row !mt-2'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
@@ -505,7 +499,6 @@ export default function PublicationDetailCom(
         </FormControl>
         <FormControl className='!flex items-center gap-3 !flex-row !mt-2'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
@@ -558,7 +551,6 @@ export default function PublicationDetailCom(
         </Box>
         <FormControl className='!flex items-center gap-3 !flex-row'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
@@ -585,7 +577,6 @@ export default function PublicationDetailCom(
         </FormControl>
         <FormControl className='!flex items-center gap-3 !flex-row !mt-2'>
           <Typography
-            id='demo-radio-buttons-group-label'
             className='text-sm whitespace-nowrap min-w-[180px] !text-black'
             fontWeight={600}
           >
