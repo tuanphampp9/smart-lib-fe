@@ -15,6 +15,7 @@ export interface BorrowSlipType {
   updatedAt: string
   createdBy: string
   updatedBy: string
+  note: string
 }
 
 export interface BorrowSlipDetail {

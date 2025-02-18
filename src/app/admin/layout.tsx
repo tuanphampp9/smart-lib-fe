@@ -79,6 +79,11 @@ const Menus: baseMenu[] = [
         path: '/admin/borrow-publications',
       },
       {
+        id: 3,
+        title: 'Quản lý yêu cầu bổ sung tài liệu',
+        path: '/admin/publication-request',
+      },
+      {
         id: 4,
         title: 'Biên bản kiểm kê',
         path: '/admin/inventory',
