@@ -12,12 +12,19 @@ import { handleErrorCode } from '@/lib/utils/common'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import { setInfoUser } from '@/store/slices/userSlice'
+import DialogCustom from '@/components/DialogCustom'
+import { forgotPassword } from '@/apiRequest/userApi'
+import LoadingButton from '@mui/lab/LoadingButton'
 export interface ILoginProps {}
 
 export default function Login(props: ILoginProps) {
   const [showPassword, setShowPassword] = React.useState<boolean>(false)
   const router = useRouter()
   const dispatch = useDispatch()
+  const [openModalForgotPassword, setOpenModalForgotPassword] =
+    React.useState<boolean>(false)
+  const [loadingForgotPassword, setLoadingForgotPassword] =
+    React.useState<boolean>(false)
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -52,6 +59,29 @@ export default function Login(props: ILoginProps) {
       } catch (error: any) {
         console.log(error.response)
         handleErrorCode(error)
+      }
+    },
+  })
+  const formikForgotPassword = useFormik({
+    initialValues: {
+      email: '',
+    },
+    validationSchema: Yup.object().shape({
+      email: Yup.string()
+        .required('Email không được để trống')
+        .email('Email không hợp lệ'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        setLoadingForgotPassword(true)
+        const res = await forgotPassword(values.email)
+        toast.success('Vui lòng kiểm tra email để lấy lại mật khẩu')
+        setOpenModalForgotPassword(false)
+      } catch (error: any) {
+        console.log(error.response)
+        handleErrorCode(error)
+      } finally {
+        setLoadingForgotPassword(false)
       }
     },
   })
@@ -130,7 +160,7 @@ export default function Login(props: ILoginProps) {
                 </Button>
                 <Button
                   onClick={() => {
-                    router.push('/forget-password')
+                    setOpenModalForgotPassword(true)
                   }}
                   className='!bg-blue-800 !text-white rounded-md w-fit !px-6 !py-3 hover:!bg-blue-500'
                 >
@@ -154,6 +184,58 @@ export default function Login(props: ILoginProps) {
           </Box>
         </Box>
       </Box>
+      {openModalForgotPassword && (
+        <DialogCustom
+          title='Thông tin địa chỉ email của bạn'
+          isModalOpen={openModalForgotPassword}
+          setIsModalOpen={setOpenModalForgotPassword}
+          handleLogicCancel={() => console.log('cancel')}
+          width={600}
+          children={
+            <Box
+              component='form'
+              onSubmit={formikForgotPassword.handleSubmit}
+              sx={{ mt: 1 }}
+            >
+              <FormControl variant='outlined' fullWidth>
+                <StyledTextField
+                  margin='normal'
+                  fullWidth
+                  id='email'
+                  name='email'
+                  placeholder={'Nhập email'}
+                  type='text'
+                  className='!mt-1'
+                  value={formikForgotPassword.values.email}
+                  onChange={formikForgotPassword.handleChange}
+                  error={
+                    formikForgotPassword.touched.email &&
+                    Boolean(formikForgotPassword.errors.email)
+                  }
+                  helperText={
+                    formikForgotPassword.touched.email &&
+                    formikForgotPassword.errors.email
+                  }
+                />
+              </FormControl>
+              <LoadingButton
+                type='submit'
+                loading={loadingForgotPassword}
+                sx={{
+                  py: 2,
+                  px: 4,
+                  '&.Mui-disabled': {
+                    backgroundColor: 'gray', // Màu nền khi button bị disabled
+                  },
+                }}
+                className='!bg-blue-800 !text-white rounded-md w-fit !px-6 !py-3 hover:!bg-blue-500'
+              >
+                {loadingForgotPassword ? '' : 'Gửi'}
+              </LoadingButton>
+            </Box>
+          }
+        />
+      )}
     </Box>
   )
 }

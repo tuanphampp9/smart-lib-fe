@@ -1,5 +1,6 @@
 import instant from '@/lib/axiosCustom'
 import { UserType } from '@/lib/types/userType'
+import axios from 'axios'
 const API_DOMAIN = process.env.NEXT_PUBLIC_API_URL
 export const getListReaders = async (
   page: number,
@@ -78,5 +79,12 @@ export const minusPubFromCart = async (cardId: string) => {
   const response = await instant.put(
     `${API_DOMAIN}/v1/users/cart/minus/${cardId}`
   )
+  return response
+}
+
+export const forgotPassword = async (email: string) => {
+  const response = await axios.post(`${API_DOMAIN}/v1/users/forget-password`, {
+    email,
+  })
   return response
 }
