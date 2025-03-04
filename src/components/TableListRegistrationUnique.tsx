@@ -1,13 +1,10 @@
 'use client'
-import { getListImportReceiptDetails } from '@/apiRequest/importReceiptApi'
 import { getListRegistrationUniques } from '@/apiRequest/publicationApi'
+import { getListRegistrationUniquesHasPublicationName } from '@/apiRequest/registrationUniqueApi'
 import PaginationCustom from '@/components/PaginationCustom'
 import TableCustom from '@/components/TableCustom'
 import { pageInfo } from '@/lib/types/commonType'
-import {
-  ImportReceiptDetailResponseType,
-  RegistrationUniqueResponseType,
-} from '@/lib/types/ImportReceiptType'
+import { RegistrationUniqueResponseType } from '@/lib/types/ImportReceiptType'
 import { formatDateTime, handleErrorCode } from '@/lib/utils/common'
 import {
   removeRegistrationIds,
@@ -23,11 +20,14 @@ import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-export interface ITableListRegistrationUniqueProps {}
+export interface ITableListRegistrationUniqueProps {
+  onChangeRegistrationIds?: (registrationId: string, isCheck: boolean) => void
+}
 
 export default function TableListRegistrationUnique(
   props: ITableListRegistrationUniqueProps
 ) {
+  const { onChangeRegistrationIds } = props
   const dispatch = useDispatch()
   const [pageInfo, setPageInfo] = React.useState<pageInfo>({
     page: 1,
@@ -51,7 +51,11 @@ export default function TableListRegistrationUnique(
     try {
       setLoading(true)
       const filter = registrationId ? `registrationId: '${registrationId}'` : ''
-      const res = await getListRegistrationUniques(page, size, filter)
+      const res = await getListRegistrationUniquesHasPublicationName(
+        page,
+        size,
+        filter
+      )
       setPageInfo({
         page: res.data.meta.page,
         itemPerPage: res.data.meta.pageSize,
@@ -73,6 +77,9 @@ export default function TableListRegistrationUnique(
     AVAILABLE: 'Sẵn có',
     BORROWED: 'Đang mượn',
     LOST: 'Thất lạc',
+    DAMAGED: 'Hỏng',
+    NEED_REPAIR: 'Cần sửa chữa',
+    LIQUIDATED: 'Đã thanh lý',
   }
 
   const columns: GridColDef[] = [
@@ -85,11 +92,16 @@ export default function TableListRegistrationUnique(
       renderCell: (params) => {
         return (
           <Checkbox
-            disabled={params.row.status === 'BORROWED'}
+            disabled={params.row.status !== 'AVAILABLE'}
             checked={registrationIds.includes(
               params.row.registrationId as string
             )}
             onChange={(e) => {
+              if (onChangeRegistrationIds)
+                onChangeRegistrationIds?.(
+                  params.row.registrationId as string,
+                  e.target.checked
+                )
               if (e.target.checked) {
                 dispatch(
                   setRegistrationIds(params.row.registrationId as string)
@@ -117,7 +129,15 @@ export default function TableListRegistrationUnique(
     {
       field: 'registrationId',
       headerName: 'Mã ĐKCB',
-      width: 220,
+      minWidth: 220,
+      flex: 1,
+      headerAlign: 'left',
+      align: 'left',
+    },
+    {
+      field: 'publicationName',
+      headerName: 'Mã ĐKCB',
+      minWidth: 220,
       flex: 1,
       headerAlign: 'left',
       align: 'left',

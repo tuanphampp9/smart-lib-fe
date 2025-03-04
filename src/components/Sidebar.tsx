@@ -2,8 +2,9 @@
 import { baseMenu } from '@/lib/types/commonType'
 import { StyledDrawer } from '@/styles/commonStyle'
 import CircleIcon from '@mui/icons-material/Circle'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import {
-  Box,
   Collapse,
   List,
   ListItem,
@@ -16,8 +17,6 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 export interface ISidebarProps {
   menu: baseMenu[]
 }

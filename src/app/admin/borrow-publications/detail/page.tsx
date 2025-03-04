@@ -1,6 +1,5 @@
 'use client'
 import * as React from 'react'
-import TableListRegistrationUnique from './_components/TableListRegistrationUnique'
 import TableListReadCard from './_components/TableListReadCard'
 import { RootState } from '@/store/store'
 import { useDispatch, useSelector } from 'react-redux'
@@ -14,6 +13,7 @@ import {
   setCardId,
 } from '@/store/slices/borrowSlipSlice'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import TableListRegistrationUnique from '@/components/TableListRegistrationUnique'
 
 export interface IBorrowPublicationDetailProps {}
 

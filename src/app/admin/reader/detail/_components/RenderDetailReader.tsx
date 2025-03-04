@@ -118,7 +118,6 @@ export default function RenderDetailReader(props: IRenderDetailReaderProps) {
     const getReaderById = async () => {
       try {
         const res = await getReader(readerId)
-        console.log(res)
         formik.setValues({
           fullName: res.data.fullName,
           email: res.data.email,
@@ -136,7 +135,6 @@ export default function RenderDetailReader(props: IRenderDetailReaderProps) {
     }
     if (readerId) getReaderById()
   }, [])
-  console.log('formik', formik)
   return (
     <div className='w-3/4'>
       <IconButton
