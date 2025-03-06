@@ -1,21 +1,19 @@
 'use client'
 import { getListLiquidations } from '@/apiRequest/liquidationApi'
+import DialogCustom from '@/components/DialogCustom'
+import PaginationCustom from '@/components/PaginationCustom'
+import TableCustom from '@/components/TableCustom'
 import { pageInfo } from '@/lib/types/commonType'
 import { LiquidationType } from '@/lib/types/liquidationType'
 import { formatDate, handleErrorCode } from '@/lib/utils/common'
+import AddIcon from '@mui/icons-material/Add'
+import EditIcon from '@mui/icons-material/Edit'
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { Box, Button, Chip, IconButton } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
+import { Select } from 'antd'
 import { useRouter } from 'next/navigation'
-import EditIcon from '@mui/icons-material/Edit'
 import * as React from 'react'
-import { Popconfirm, Select } from 'antd'
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
-import AddIcon from '@mui/icons-material/Add'
-import { toast } from 'react-toastify'
-import TableCustom from '@/components/TableCustom'
-import PaginationCustom from '@/components/PaginationCustom'
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
-import DialogCustom from '@/components/DialogCustom'
 
 export interface ILiquidationPageProps {}
 
@@ -198,7 +196,7 @@ export default function LiquidationPage(props: ILiquidationPageProps) {
     },
     {
       field: 'conditionStatus',
-      headerName: 'Thời gian ra',
+      headerName: 'Điều kiện thanh lý',
       flex: 1,
       headerAlign: 'left',
       align: 'left',

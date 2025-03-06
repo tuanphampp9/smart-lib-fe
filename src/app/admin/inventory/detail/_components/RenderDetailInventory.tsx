@@ -1,10 +1,11 @@
 'use client'
 import {
-  createLiquidation,
-  getLiquidationById,
-  updateLiquidation,
-} from '@/apiRequest/liquidationApi'
+  createInventory,
+  getInventoryById,
+  updateInventory,
+} from '@/apiRequest/inventoryApi'
 import { handleErrorCode } from '@/lib/utils/common'
+import { RootState } from '@/store/store'
 import {
   Box,
   Button,
@@ -16,52 +17,59 @@ import {
 import { useFormik } from 'formik'
 import { useRouter, useSearchParams } from 'next/navigation'
 import * as React from 'react'
+import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import * as Yup from 'yup'
 import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace'
 import { StyledTextField } from '@/styles/commonStyle'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/store/store'
+import AutoCompleteCustom from '@/components/AutocompleteCustom'
+import { WarehouseType } from '@/lib/types/warehouseType'
+import { getListWarehouses } from '@/apiRequest/warehouseApi'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-export interface IRenderDetailLiquidationProps {}
+export interface IRenderDetailInventoryProps {}
 
-export default function RenderDetailLiquidation(
-  props: IRenderDetailLiquidationProps
+export default function RenderDetailInventory(
+  props: IRenderDetailInventoryProps
 ) {
   const searchParams = useSearchParams()
   const params = new URLSearchParams(searchParams.toString())
-  const liquidationId = params.get('liquidationId') ?? ''
+  const inventoryId = params.get('inventoryId') ?? ''
   const router = useRouter()
   const user = useSelector((state: RootState) => state.user.user)
+  const [warehouses, setWarehouses] = React.useState<WarehouseType[]>([])
+  const [loading, setLoading] = React.useState<boolean>(false)
   const formik = useFormik({
     initialValues: {
-      receiverName: '',
-      receiverContact: '',
+      warehouseId: '',
       note: '',
       status: '',
     },
     validationSchema: Yup.object().shape({
-      receiverName: Yup.string().required('Tên người nhận không được để trống'),
-      receiverContact: Yup.string().required('Liên hệ không được để trống'),
+      warehouseId: Yup.string().required('Vui lòng chọn kho'),
+      note: Yup.string().required('Vui lòng nhập ghi chú'),
     }),
     onSubmit: async (values) => {
       try {
-        if (liquidationId) {
+        if (inventoryId) {
           // call api update reader
-          const res = await updateLiquidation(values, liquidationId)
+          const res = await updateInventory(
+            {
+              ...values,
+            },
+            inventoryId
+          )
           console.log(res)
-          toast.success('Cập nhật phiếu thanh lý thành công')
+          toast.success('Cập nhật phiếu kiểm kê thành công')
         } else {
           // call api create reader
-          const res = await createLiquidation({
+          const res = await createInventory({
             ...values,
             userId: user.id ?? '',
           })
-          console.log(res)
           formik.resetForm()
-          toast.success('Thêm phiếu thanh lý thành công')
+          toast.success('Thêm phiếu kiểm kê thành công')
           router.push(
-            `/admin/liquidations/pickRegistrationId?liquidationId=${res.data.id}`
+            `/admin/inventory/pickRegistrationId?inventoryId=${res.data.id}`
           )
         }
       } catch (error: any) {
@@ -69,13 +77,27 @@ export default function RenderDetailLiquidation(
       }
     },
   })
+
+  const fetchListWarehouses = async () => {
+    try {
+      setLoading(true)
+      // call api get list warehouses
+      const res = await getListWarehouses(1, 1000, '')
+      setWarehouses(res.data.result)
+    } catch (error: any) {
+      handleErrorCode(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   React.useEffect(() => {
     const fetchLiquidation = async () => {
       try {
-        const res = await getLiquidationById(liquidationId)
+        const res = await getInventoryById(inventoryId)
+        console.log(res)
         formik.setValues({
-          receiverName: res.data.receiverName,
-          receiverContact: res.data.receiverContact,
+          warehouseId: res.data.warehouse.id,
           note: res.data.note,
           status: res.data.status,
         })
@@ -83,10 +105,14 @@ export default function RenderDetailLiquidation(
         handleErrorCode(error)
       }
     }
-    if (liquidationId) {
+    if (inventoryId) {
       fetchLiquidation()
     }
-  }, [liquidationId])
+    fetchListWarehouses()
+  }, [inventoryId])
+  if (loading) {
+    return <div>Loading...</div>
+  }
   return (
     <div className='w-3/4'>
       <IconButton
@@ -98,57 +124,35 @@ export default function RenderDetailLiquidation(
       </IconButton>
       <Box component='form' onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
         <Typography fontWeight={600} className='text-sm !text-red-800'>
-          Tạo mới Phiếu thanh lý
+          Thông tin Phiếu kiểm kê
         </Typography>
         <Box className='flex items-start gap-3 mt-4'>
           <Typography fontWeight={600} className='text-sm min-w-[180px]'>
-            Tên tổ chức
+            Kho
           </Typography>
-          <FormControl variant='outlined' fullWidth>
-            <StyledTextField
-              margin='normal'
-              fullWidth
-              id='receiverName'
-              placeholder='Nhập tên tổ chức'
-              name='receiverName'
-              className='!mt-1'
-              value={formik.values.receiverName}
-              onChange={formik.handleChange}
-              autoFocus
-              error={
-                formik.touched.receiverName &&
-                Boolean(formik.errors.receiverName)
-              }
-              helperText={
-                formik.touched.receiverName && formik.errors.receiverName
-              }
+          <Box>
+            <AutoCompleteCustom
+              listData={warehouses}
+              fieldShow='name'
+              value={warehouses.find(
+                (warehouse) => warehouse.id === formik.values.warehouseId
+              )} // Set giá trị mặc định
+              placeholder='Chọn kho lưu trữ'
+              onChange={(event, newValue) => {
+                formik.setFieldValue(
+                  'warehouseId',
+                  newValue !== null ? newValue.id : ''
+                )
+              }}
             />
-          </FormControl>
+            {formik.touched.warehouseId && (
+              <Typography className='text-xs !mt-2 !text-red-800'>
+                {formik.errors.warehouseId}
+              </Typography>
+            )}
+          </Box>
         </Box>
-        <Box className='flex items-start gap-3 mt-4'>
-          <Typography fontWeight={600} className='text-sm min-w-[180px]'>
-            Thông tin liên hệ tổ chức
-          </Typography>
-          <FormControl variant='outlined' fullWidth>
-            <StyledTextField
-              margin='normal'
-              fullWidth
-              id='receiverContact'
-              placeholder='Nhập thông tin liên hệ'
-              name='receiverContact'
-              className='!mt-1'
-              value={formik.values.receiverContact}
-              onChange={formik.handleChange}
-              error={
-                formik.touched.receiverContact &&
-                Boolean(formik.errors.receiverContact)
-              }
-              helperText={
-                formik.touched.receiverContact && formik.errors.receiverContact
-              }
-            />
-          </FormControl>
-        </Box>
+
         <Box className='flex items-start gap-3 mt-4'>
           <Typography fontWeight={600} className='text-sm min-w-[180px]'>
             Ghi chú
@@ -160,8 +164,6 @@ export default function RenderDetailLiquidation(
               id='note'
               placeholder='Nhập ghi chú'
               name='note'
-              multiline
-              rows={4}
               className='!mt-1'
               value={formik.values.note}
               onChange={formik.handleChange}
@@ -184,17 +186,17 @@ export default function RenderDetailLiquidation(
           }}
         >
           <Typography variant='body1' fontWeight={400} className='!text-white'>
-            {liquidationId ? 'Cập nhật phiếu thanh lý' : 'Thêm phiếu thanh lý'}
+            {inventoryId ? 'Cập nhật phiếu kiểm kê' : 'Thêm phiếu kiểm kê'}
           </Typography>
         </Button>
       </Box>
       <div className='flex justify-end mt-5'>
-        <Tooltip title='Đi đến chi tiết phiếu thanh lý'>
+        <Tooltip title='Đi đến chi tiết phiếu kiểm kê'>
           <ArrowForwardIcon
             className='cursor-pointer'
             onClick={() =>
               router.push(
-                `/admin/liquidations/pickRegistrationId?liquidationId=${liquidationId}`
+                `/admin/inventory/pickRegistrationId?inventoryId=${inventoryId}`
               )
             }
           />

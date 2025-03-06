@@ -92,7 +92,9 @@ const Sidebar = (props: ISidebarProps) => {
               }}
             >
               <ListItem
-                className={'cursor-pointer !py-3 flex justify-between !w-full'}
+                className={`cursor-pointer !py-3 flex justify-between !w-full 
+                    ${pathName === item.path ? 'bg-blue-700' : ''}
+                  `}
               >
                 <Typography
                   variant='body1'

@@ -83,11 +83,6 @@ const Menus: baseMenu[] = [
         title: 'Quản lý yêu cầu bổ sung tài liệu',
         path: '/admin/publication-request',
       },
-      {
-        id: 5,
-        title: 'Biên bản kiểm kê',
-        path: '/admin/inventory',
-      },
     ],
   },
   {
@@ -102,6 +97,11 @@ const Menus: baseMenu[] = [
   },
   {
     id: 6,
+    title: 'Quản lý kiểm kê',
+    path: '/admin/inventory',
+  },
+  {
+    id: 7,
     title: 'Báo cáo thống kê',
     subMenuItems: [
       {
