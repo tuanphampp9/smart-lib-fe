@@ -1,10 +1,12 @@
 'use client'
-import { getPublication } from '@/apiRequest/publicationApi'
+import {
+  getListPublicationSuggestions,
+  getPublication,
+} from '@/apiRequest/publicationApi'
 import { addPubToCart, createRating, getRating } from '@/apiRequest/userApi'
-import RatingCustom from '@/components/RatingCustom'
 import TabPanelCustom from '@/components/TabPanelCustom'
 import { PublicationTypeResponse } from '@/lib/types/PublicationType'
-import { handleErrorCode } from '@/lib/utils/common'
+import { convertSlugify, handleErrorCode } from '@/lib/utils/common'
 import { RootState } from '@/store/store'
 import { Box, CircularProgress, Rating, Typography } from '@mui/material'
 import * as React from 'react'
@@ -12,6 +14,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import { addPublicationCart } from '@/store/slices/userSlice'
+import { useRouter } from 'next/navigation'
 
 export interface IRenderDetailProps {
   publicationId: string
@@ -25,19 +28,35 @@ export default function RenderDetail(props: IRenderDetailProps) {
   )
   const { user } = useSelector((state: RootState) => state.user)
   const [loading, setLoading] = React.useState<boolean>(true)
-  const [rating, setRating] = React.useState<number | null>(null)
+  // const [rating, setRating] = React.useState<number | null>(null)
+  const [listSuggestions, setListSuggestions] = React.useState<
+    PublicationTypeResponse[]
+  >([])
+  const router = useRouter()
   const fetchPublication = async () => {
     try {
       const res = await getPublication(publicationId)
       setPublication(res.data)
+      fetchListSuggestions()
     } catch (error: any) {
       handleErrorCode(error)
     } finally {
       setLoading(false)
     }
   }
+  const fetchListSuggestions = async () => {
+    try {
+      const res = await getListPublicationSuggestions(publicationId)
+      console.log(res)
+      setListSuggestions(res.data)
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
   React.useEffect(() => {
-    if (publicationId) fetchPublication()
+    if (publicationId) {
+      fetchPublication()
+    }
   }, [publicationId])
   const listTabs = [
     {
@@ -171,9 +190,9 @@ export default function RenderDetail(props: IRenderDetailProps) {
       handleErrorCode(error)
     }
   }
-  React.useEffect(() => {
-    if (user.id) fetchRatingByUser()
-  }, [user.id])
+  // React.useEffect(() => {
+  //   if (user.id) fetchRatingByUser()
+  // }, [user.id])
   const handleAddPubToCart = async () => {
     try {
       const res = await addPubToCart({
@@ -189,49 +208,111 @@ export default function RenderDetail(props: IRenderDetailProps) {
     }
   }
   return (
-    <div className='flex justify-center h-screen'>
-      <div className='container mt-5'>
-        {loading ? (
-          <div className='flex justify-center items-center h-screen'>
-            <div className='flex justify-center items-center'>
-              <CircularProgress />
+    <div>
+      <div className='flex justify-center'>
+        <div className='container mt-5'>
+          {loading ? (
+            <div className='flex justify-center items-center h-screen'>
+              <div className='flex justify-center items-center'>
+                <CircularProgress />
+              </div>
             </div>
-          </div>
-        ) : (
-          <div>
-            <Box className='border-b-4 border-red-800'>
-              <Typography
-                variant='h5'
-                fontWeight={500}
-                className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md'
-              >
-                Thông tin ấn phẩm
-              </Typography>
-            </Box>
-            <div className='flex items-start gap-3'>
-              <div>
-                <img
-                  src={publication.bannerImg}
-                  alt={publication.name}
-                  className='w-[200px]'
-                />
-                {/* <RatingCustom
+          ) : (
+            <div>
+              <Box className='border-b-4 border-red-800'>
+                <Typography
+                  variant='h5'
+                  fontWeight={500}
+                  className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md'
+                >
+                  Thông tin ấn phẩm
+                </Typography>
+              </Box>
+              <div className='flex items-start gap-3'>
+                <div>
+                  <img
+                    src={publication.bannerImg}
+                    alt={publication.name}
+                    className='w-[200px]'
+                  />
+                  {/* <RatingCustom
                   value={rating}
                   onchange={async (newValue) => {
                     await handleCreateRating(newValue)
                   }}
                 /> */}
-                <div
-                  className='p-2 bg-red-800 text-white rounded-md cursor-pointer flex justify-center mt-4'
-                  onClick={handleAddPubToCart}
-                >
-                  Đặt mượn <AddShoppingCartIcon />
+                  <div
+                    className='p-2 bg-red-800 text-white rounded-md cursor-pointer flex justify-center mt-4'
+                    onClick={handleAddPubToCart}
+                  >
+                    Đặt mượn <AddShoppingCartIcon />
+                  </div>
                 </div>
+                <TabPanelCustom listTabs={listTabs} />
               </div>
-              <TabPanelCustom listTabs={listTabs} />
             </div>
+          )}
+        </div>
+      </div>
+      <div className='flex justify-center'>
+        <div className='container mt-10'>
+          <Box className='border-b-4 border-red-800'>
+            <Typography
+              variant='h5'
+              fontWeight={500}
+              className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md'
+            >
+              Những ấn phẩm đề xuất
+            </Typography>
+          </Box>
+          <div>
+            {listSuggestions.length > 0 ? (
+              <div className='grid grid-cols-5 gap-4'>
+                {listSuggestions.map((item, index) => (
+                  <div
+                    key={index}
+                    className='w-[250px] cursor-pointer shadow-sm p-3 transition-transform duration-300 ease-in-out transform hover:-translate-y-2 hover:shadow-md'
+                    onClick={() => {
+                      window.open(
+                        `/publication/${convertSlugify(item.name)}-${item.id}.html`,
+                        '_blank'
+                      )
+                    }}
+                  >
+                    <img
+                      src={item.bannerImg}
+                      alt={item.name}
+                      className='w-[175px] h-[170px] object-contain'
+                    />
+                    <h4 className='text-center font-semibold mt-3'>
+                      {item.name}
+                    </h4>
+                    <h4>
+                      Tác giả:{' '}
+                      {item.authors
+                        .map((author, index) => author.fullName)
+                        .join(', ')}
+                    </h4>
+                    <h4>
+                      Nhà xuất bản:{' '}
+                      {item.publisher?.name !== null
+                        ? item.publisher?.name
+                        : ''}
+                    </h4>
+                    <h4>Ngôn ngữ: {item.language.name}</h4>
+                    <h4>Kho: {item.warehouse.name}</h4>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Box className='w-full text-center mt-5'>
+                <Typography fontWeight={500} variant='h6'>
+                  Không có ấn phẩm đề xuất
+                </Typography>
+              </Box>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   )

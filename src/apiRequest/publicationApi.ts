@@ -61,3 +61,10 @@ export const getListRegistrationUniques = async (
   )
   return response
 }
+
+export const getListPublicationSuggestions = async (publicationId: string) => {
+  const response = await instant.get(
+    `${API_DOMAIN}/v1/publications/suggestions/${publicationId}`
+  )
+  return response
+}
