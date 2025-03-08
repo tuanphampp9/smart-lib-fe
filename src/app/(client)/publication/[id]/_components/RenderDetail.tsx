@@ -182,10 +182,10 @@ export default function RenderDetail(props: IRenderDetailProps) {
     try {
       const res = await getRating(user.id ?? '', publicationId)
       if (res.data.data === 0) {
-        setRating(null)
+        // setRating(null)
         return
       }
-      setRating(res.data.data)
+      // setRating(res.data.data)
     } catch (error: any) {
       handleErrorCode(error)
     }
