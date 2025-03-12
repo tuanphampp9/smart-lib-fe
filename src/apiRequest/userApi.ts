@@ -88,3 +88,10 @@ export const forgotPassword = async (email: string) => {
   })
   return response
 }
+
+export const renewCard = async (cardId: string) => {
+  const response = await instant.put(
+    `${API_DOMAIN}/v1/card-readers/renew/${cardId}`
+  )
+  return response
+}

@@ -2,13 +2,12 @@
 import { StyledTextField } from '@/styles/commonStyle'
 import * as React from 'react'
 import SearchIcon from '@mui/icons-material/Search'
-import { Box, Button, IconButton } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
+import { Box, Button, IconButton, Tooltip } from '@mui/material'
 import TableCustom from '@/components/TableCustom'
 import PaginationCustom from '@/components/PaginationCustom'
 import { UserType } from '@/lib/types/userType'
 import { handleErrorCode, showGender } from '@/lib/utils/common'
-import { getListReaders } from '@/apiRequest/userApi'
+import { getListReaders, renewCard } from '@/apiRequest/userApi'
 import { pageInfo } from '@/lib/types/commonType'
 import { GridColDef } from '@mui/x-data-grid'
 import EditIcon from '@mui/icons-material/Edit'
@@ -17,6 +16,7 @@ import { createCard } from '@/apiRequest/cardApi'
 import LoadingButton from '@mui/lab/LoadingButton'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
+import AddIcon from '@mui/icons-material/Add'
 export interface IReaderProps {}
 
 export default function Reader(props: IReaderProps) {
@@ -68,6 +68,15 @@ export default function Reader(props: IReaderProps) {
       handleErrorCode(error)
     }
   }
+
+  const handleRenewCard = async (cardId: string) => {
+    try {
+      const res = await renewCard(cardId)
+      toast.success('Gia hạn thẻ thành công')
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
+  }
   const handleChangePerPage = async (perPage: number) => {
     await fetchListReaders(1, perPage)
   }
@@ -76,7 +85,7 @@ export default function Reader(props: IReaderProps) {
     fetchListReaders(1, pageInfo.itemPerPage)
   }, [])
 
-  const handleCreateCard = (row: UserType) => async () => {
+  const handleAcceptAccount = (row: UserType) => async () => {
     if (!row.cardRead) {
       try {
         setLoadingCreateCard(row.id ?? '')
@@ -188,12 +197,30 @@ export default function Reader(props: IReaderProps) {
           <LoadingButton
             variant='contained'
             color='primary'
-            onClick={handleCreateCard(params.row)}
+            onClick={handleAcceptAccount(params.row)}
             loading={loadingCreateCard === params.row.id}
           >
             {params.value ? 'In thẻ' : 'Tạo thẻ'}
           </LoadingButton>
         )
+      },
+    },
+    {
+      field: 'renewCard',
+      headerName: 'Gia hạn thẻ',
+      headerAlign: 'left',
+      minWidth: 150,
+      renderCell: (params) => {
+        if (params.row.cardRead) {
+          return (
+            <Tooltip title='Gia hạn thẻ cho bạn đọc'>
+              <AddIcon
+                onClick={() => handleRenewCard(params.row.cardRead.cardId)}
+              />
+            </Tooltip>
+          )
+        }
+        return <div></div>
       },
     },
   ]

@@ -61,7 +61,7 @@ export default function RenderDetailReader(props: IRenderDetailReaderProps) {
       portraitImg: Yup.string().required('Ảnh chân dung không được để trống'),
       dob: Yup.string().required('Ngày sinh không được để trống'),
       phone: Yup.string().required('Số điện thoại không được để trống'),
-      identityCardNumber: Yup.string().required('Số CMND không được để trống'),
+      identityCardNumber: Yup.string().required('Số CCCD không được để trống'),
       address: Yup.string().required('Địa chỉ không được để trống'),
     }),
     onSubmit: async (values) => {

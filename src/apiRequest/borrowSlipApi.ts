@@ -69,3 +69,10 @@ export const getBorrowSlipById = async (id: string) => {
   const response = await instant.get(`${API_DOMAIN}/v1/borrow-slips/${id}`)
   return response
 }
+
+export const renewBorrowSlip = async (id: string) => {
+  const response = await instant.put(
+    `${API_DOMAIN}/v1/borrow-slips/${id}/renew`
+  )
+  return response
+}

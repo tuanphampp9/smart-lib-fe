@@ -2,6 +2,7 @@
 import {
   deleteBorrowSlip,
   getListBorrowSlips,
+  renewBorrowSlip,
 } from '@/apiRequest/borrowSlipApi'
 import { BorrowSlipType } from '@/lib/types/BorrowSlipsType'
 import { pageInfo } from '@/lib/types/commonType'
@@ -10,7 +11,7 @@ import {
   formatDateTime,
   handleErrorCode,
 } from '@/lib/utils/common'
-import { Box, Chip, Typography } from '@mui/material'
+import { Box, Chip, Tooltip, Typography } from '@mui/material'
 import { GridColDef } from '@mui/x-data-grid'
 import { Popconfirm, Select } from 'antd'
 import { useRouter } from 'next/navigation'
@@ -25,6 +26,7 @@ import RatingCustom from '@/components/RatingCustom'
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt'
 import DialogCustom from '@/components/DialogCustom'
 import { createRating } from '@/apiRequest/userApi'
+import AddIcon from '@mui/icons-material/Add'
 
 export interface IBorrowedHistoryProps {}
 
@@ -82,6 +84,24 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
     RETURNED: 'Đã trả',
     OVER_DUE: 'Quá hạn',
     NOT_BORROWED: 'Chưa mượn',
+  }
+
+  const handleRenewBorrowSlip = async (borrowSlip: BorrowSlipType) => {
+    try {
+      if (borrowSlip.renewDueDate >= 2) {
+        toast.warning('Bạn chỉ được gia hạn phiếu mượn tối đa 2 lần!')
+        return
+      }
+      await renewBorrowSlip(borrowSlip.id)
+      toast.success('Gia hạn phiếu mượn thành công')
+      fetchListBorrowSlips(
+        pageInfo.page,
+        pageInfo.itemPerPage,
+        user.cardRead.cardId
+      )
+    } catch (error: any) {
+      handleErrorCode(error)
+    }
   }
 
   const columns: GridColDef[] = [
@@ -213,6 +233,22 @@ export default function BorrowedHistory(props: IBorrowedHistoryProps) {
                 setOpenModalViewDetail(true)
               }}
             />
+          )
+        }
+      },
+    },
+    {
+      field: 'renewBorrowSlip',
+      headerName: 'Gia phiếu mượn',
+      width: 220,
+      headerAlign: 'left',
+      align: 'left',
+      renderCell: (params) => {
+        if (params.row.status === 'BORROWING') {
+          return (
+            <Tooltip title='Bạn có muốn gia hạn phiếu này không'>
+              <AddIcon onClick={() => handleRenewBorrowSlip(params.row)} />
+            </Tooltip>
           )
         }
       },

@@ -16,6 +16,7 @@ export interface BorrowSlipType {
   createdBy: string
   updatedBy: string
   note: string
+  renewDueDate: number
 }
 
 export interface BorrowSlipDetail {

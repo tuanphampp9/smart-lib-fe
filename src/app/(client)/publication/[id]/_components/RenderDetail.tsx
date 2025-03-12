@@ -195,6 +195,12 @@ export default function RenderDetail(props: IRenderDetailProps) {
   // }, [user.id])
   const handleAddPubToCart = async () => {
     try {
+      if (user.cardRead.locked) {
+        toast.warning(
+          'Thẻ của bạn đã bị khoá! Vui lòng liên hệ thủ thư để mở khoá'
+        )
+        return
+      }
       const res = await addPubToCart({
         userId: user.id ?? '',
         publicationId: parseInt(publicationId),
