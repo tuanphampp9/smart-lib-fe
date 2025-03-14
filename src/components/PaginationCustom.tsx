@@ -64,7 +64,6 @@ export default function PaginationCustom(props: IPaginationCustomProps) {
           nextLabel={<KeyboardArrowRightIcon />}
           onPageChange={handlePageClick}
           pageCount={pageInfo.totalPage}
-          initialPage={0}
           forcePage={pageInfo.page - 1}
           pageClassName={`${styles['item']} ${styles[' pagination-page']}`}
           pageRangeDisplayed={2}

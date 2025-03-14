@@ -50,7 +50,7 @@ export default function RegisterPublicationForm(
       <Box className='my-4'>
         <Box className='flex items-center gap-2'>
           <Typography className='!font-semibold'>Số thẻ: </Typography>
-          <Typography>{user.cardRead.cardId}</Typography>
+          <Typography>{user.cardRead?.cardId}</Typography>
         </Box>
         <Box className='flex items-center gap-2'>
           <Typography className='!font-semibold'>Họ và tên: </Typography>
