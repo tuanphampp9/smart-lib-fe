@@ -17,6 +17,7 @@ import {
   Typography,
 } from '@mui/material'
 import { useFormik } from 'formik'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { toast } from 'react-toastify'
@@ -96,7 +97,8 @@ export default function Register(props: IRegisterProps) {
   }
   return (
     <Box className='w-screen h-screen flex justify-center items-center'>
-      <Box>
+      <Image src='/assets/book_bg.jpg' layout='fill' alt='background book' />
+      <Box className='relative rounded-sm overflow-hidden'>
         <Box className='border-b-4 border-red-800'>
           <Typography
             variant='h5'

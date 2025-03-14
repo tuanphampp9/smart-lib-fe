@@ -15,6 +15,7 @@ import { setInfoUser } from '@/store/slices/userSlice'
 import DialogCustom from '@/components/DialogCustom'
 import { forgotPassword } from '@/apiRequest/userApi'
 import LoadingButton from '@mui/lab/LoadingButton'
+import Image from 'next/image'
 export interface ILoginProps {}
 
 export default function Login(props: ILoginProps) {
@@ -87,17 +88,18 @@ export default function Login(props: ILoginProps) {
   })
   return (
     <Box className='w-screen h-screen flex justify-center items-center'>
-      <Box>
+      <Image src='/assets/book_bg.jpg' layout='fill' alt='background book' />
+      <Box className='relative rounded-sm overflow-hidden'>
         <Box className='border-b-4 border-red-800'>
           <Typography
             variant='h5'
             fontWeight={500}
-            className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md '
+            className='px-4 py-3 bg-red-800 w-fit !text-white rounded-tl-md rounded-tr-md'
           >
             Đăng nhập
           </Typography>
         </Box>
-        <Box className='w-[800px] rounded-sm shadow-2xl p-4'>
+        <Box className='lg:w-[800px] w-[600px] rounded-sm shadow-2xl p-4'>
           <Box component='form' onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
             <Typography fontWeight={400}>Tên đăng nhập</Typography>
             <FormControl variant='outlined' fullWidth>
